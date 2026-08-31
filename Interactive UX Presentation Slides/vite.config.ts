@@ -1,17 +1,20 @@
 import { defineConfig, type HtmlTagDescriptor, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 
-import siteConfiguration from './.figma/make/site.json'
+const siteConfiguration = loadSiteConfiguration()
 
 // Vite config — https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   // .figma/make/deploy-preview passes `--mode development` for cached-preview builds.
   const emitSourcemaps = mode === 'development'
+  const githubRepositoryName = process.env.GITHUB_REPOSITORY?.split('/')[1]
+  const githubPagesBase = githubRepositoryName ? `/${githubRepositoryName}/` : '/'
 
   return {
-    base: process.env.FIGMA_PUBLIC_URL ? `${process.env.FIGMA_PUBLIC_URL}/` : '/',
+    base: process.env.FIGMA_PUBLIC_URL ? `${process.env.FIGMA_PUBLIC_URL}/` : githubPagesBase,
     build: {
       sourcemap: emitSourcemaps ? 'inline' : false,
       minify: !emitSourcemaps,
@@ -66,6 +69,17 @@ type FigmaSiteConfiguration = {
   }
   accessibility?: {
     addBypassLinks?: boolean
+  }
+}
+
+function loadSiteConfiguration(): FigmaSiteConfiguration {
+  const siteConfigPath = path.resolve(__dirname, './.figma/make/site.json')
+  if (!existsSync(siteConfigPath)) return {}
+
+  try {
+    return JSON.parse(readFileSync(siteConfigPath, 'utf-8')) as FigmaSiteConfiguration
+  } catch {
+    return {}
   }
 }
 
