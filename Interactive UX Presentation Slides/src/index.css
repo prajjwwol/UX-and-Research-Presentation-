@@ -1,0 +1,342 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,400;0,9..144,700;0,9..144,900;1,9..144,200;1,9..144,700;1,9..144,900&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap');
+@import 'tailwindcss';
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ─────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────── */
+:root {
+  /* Palette */
+  --bg:        #07070f;
+  --bg2:       #0d0d1c;
+  --surface:   rgba(255,255,255,0.042);
+  --surface2:  rgba(255,255,255,0.072);
+  --hairline:  rgba(255,255,255,0.08);
+  --violet:    #8b5cf6;
+  --violet-lt: #a78bfa;
+  --pink:      #ec4899;
+  --teal:      #14b8a6;
+  --amber:     #f59e0b;
+  --sky:       #38bdf8;
+
+  /* Text levels */
+  --t1: #f1f0ff;   /* primary   */
+  --t2: #b8b4d8;   /* secondary */
+  --t3: #6b6888;   /* muted     */
+
+  /* Font stacks */
+  --ff-display: 'Fraunces', Georgia, serif;
+  --ff-body:    'Instrument Sans', system-ui, sans-serif;
+  --ff-mono:    'DM Mono', monospace;
+
+  /* ── Type scale (locked) ────────────────
+     Use these — never ad-hoc font-size.
+     Display: slide hero titles
+     H1:      large single-stat numbers
+     H2:      slide section headings
+     H3:      card headings
+     Body:    all paragraph copy
+     Small:   supporting captions, meta
+     Label:   mono badges / tags / axis
+  ─────────────────────────────────────── */
+  --ts-display: clamp(3.5rem, 7.5vw, 6.5rem);
+  --ts-h1:      clamp(2.8rem, 5.5vw, 4.8rem);
+  --ts-h2:      clamp(2rem,   3.6vw, 3rem);
+  --ts-h3:      1.05rem;   /* 16.8px — card headings */
+  --ts-body:    0.9375rem; /* 15px   — all body copy */
+  --ts-small:   0.8125rem; /* 13px   — supporting    */
+  --ts-label:   0.6875rem; /* 11px   — mono tags      */
+
+  /* ── Leading (line-height) ───────────── */
+  --lh-display: 0.92;
+  --lh-heading: 1.08;
+  --lh-body:    1.72;
+  --lh-tight:   1.3;
+
+  /* ── Letter-spacing ─────────────────── */
+  --ls-label:  0.13em;
+  --ls-wide:   0.2em;
+
+  /* ── Spacing rhythm (4-pt grid) ──────── */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-14: 56px;
+
+  /* ── Layout ─────────────────────────── */
+  --sidebar-w:   304px;   /* all side panels */
+  --slide-px:    56px;    /* horizontal edge padding */
+  --card-radius: 16px;    /* all cards */
+  --card-p:      20px;    /* all card padding */
+  --tag-radius:  5px;
+}
+
+/* ─────────────────────────────────────────
+   RESET & BASE
+───────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+body, h1, h2, h3, h4, p, blockquote { margin: 0; padding: 0; }
+
+body {
+  font-family: var(--ff-body);
+  font-size: var(--ts-body);
+  line-height: var(--lh-body);
+  background: var(--bg);
+  color: var(--t1);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button { font-family: inherit; }
+
+/* Hide scrollbar by default, show on hover */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--violet); border-radius: 2px; }
+
+/* ─────────────────────────────────────────
+   TYPE UTILITY CLASSES
+───────────────────────────────────────── */
+
+/* Display headline — title slide only */
+.t-display {
+  font-family: var(--ff-display);
+  font-size: var(--ts-display);
+  font-weight: 900;
+  line-height: var(--lh-display);
+  color: var(--t1);
+}
+
+/* Section heading — one per slide */
+.t-h2 {
+  font-family: var(--ff-display);
+  font-size: var(--ts-h2);
+  font-weight: 700;
+  line-height: var(--lh-heading);
+  color: var(--t1);
+}
+
+/* Stat numbers */
+.t-h1 {
+  font-family: var(--ff-display);
+  font-size: var(--ts-h1);
+  font-weight: 900;
+  line-height: 1;
+  color: var(--t1);
+}
+
+/* Card / sub-section heading */
+.t-h3 {
+  font-family: var(--ff-body);
+  font-size: var(--ts-h3);
+  font-weight: 600;
+  line-height: var(--lh-tight);
+  color: var(--t1);
+}
+
+/* All body paragraph copy */
+.t-body {
+  font-family: var(--ff-body);
+  font-size: var(--ts-body);
+  font-weight: 400;
+  line-height: var(--lh-body);
+  color: var(--t2);
+}
+
+/* Supporting captions, metadata */
+.t-small {
+  font-family: var(--ff-body);
+  font-size: var(--ts-small);
+  line-height: var(--lh-body);
+  color: var(--t3);
+}
+
+/* Mono labels, axis text, tags */
+.t-label {
+  font-family: var(--ff-mono);
+  font-size: var(--ts-label);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--t3);
+}
+
+/* Shimmer gradient text */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--t1) 0%, var(--violet-lt) 28%, #e879f9 52%, var(--teal) 76%, var(--t1) 100%
+  );
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 5s linear infinite;
+}
+
+/* ─────────────────────────────────────────
+   LAYOUT UTILITIES
+───────────────────────────────────────── */
+
+/* Standard slide left panel */
+.slide-panel {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /* vertical padding compresses on short viewports */
+  padding: clamp(16px, 4vh, 48px) var(--sp-5) clamp(16px, 4vh, 48px) var(--slide-px);
+  gap: clamp(12px, 2.2vh, 20px);
+  position: relative;
+  z-index: 10;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Vertically-stacked slide wrapper */
+.slide-col {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  /* inner padding shrinks on short screens */
+  padding-block: clamp(12px, 3vh, 40px);
+}
+
+/* Standard card */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--card-radius);
+  padding: var(--card-p);
+}
+
+.card-accent {
+  background: var(--surface);
+  border-radius: var(--card-radius);
+  padding: var(--card-p);
+}
+
+/* Gradient border via mask */
+.grad-border {
+  position: relative;
+  isolation: isolate;
+}
+.grad-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg,
+    rgba(139,92,246,.55),
+    rgba(20,184,166,.3),
+    rgba(236,72,153,.45)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ─────────────────────────────────────────
+   NOISE TEXTURE
+───────────────────────────────────────── */
+.noise::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ─────────────────────────────────────────
+   KEYFRAMES
+───────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -300% center; }
+  100% { background-position:  300% center; }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(26px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slideLeft {
+  from { opacity: 0; transform: translateX(-28px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(28px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-9px); }
+}
+@keyframes rotateSlow {
+  to { transform: rotate(360deg); }
+}
+@keyframes glowPulse {
+  0%, 100% { opacity: .3; }
+  50%       { opacity: .7; }
+}
+
+/* ─────────────────────────────────────────
+   ANIMATION HELPERS
+───────────────────────────────────────── */
+.a-up    { animation: fadeUp    .6s cubic-bezier(.22,1,.36,1) both; }
+.a-in    { animation: fadeIn    .5s ease both; }
+.a-left  { animation: slideLeft .6s cubic-bezier(.22,1,.36,1) both; }
+.a-right { animation: slideRight .6s cubic-bezier(.22,1,.36,1) both; }
+.a-scale { animation: scaleIn  .55s cubic-bezier(.22,1,.36,1) both; }
+.a-float { animation: floatY   5s ease-in-out infinite; }
+
+/* Staggered delays on a clean scale */
+.d1 { animation-delay: .04s; }
+.d2 { animation-delay: .10s; }
+.d3 { animation-delay: .18s; }
+.d4 { animation-delay: .28s; }
+.d5 { animation-delay: .40s; }
+.d6 { animation-delay: .54s; }
+.d7 { animation-delay: .68s; }
+.d8 { animation-delay: .82s; }
+.d9 { animation-delay: .96s; }
+
+/* ─────────────────────────────────────────
+   CHROME (top/bottom bars)
+───────────────────────────────────────── */
+.chrome {
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  height: 44px;
+  flex-shrink: 0;
+  background: rgba(7,7,15,.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-color: var(--hairline);
+  z-index: 50;
+}
