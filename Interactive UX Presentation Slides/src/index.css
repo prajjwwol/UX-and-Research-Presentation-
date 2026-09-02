@@ -2,8 +2,14 @@
 @import 'tailwindcss';
 
 html, body, #root {
+  min-height: 100%;
   height: 100%;
-  overflow: hidden;
+  width: 100%;
+}
+
+body {
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 /* ─────────────────────────────────────────
@@ -46,9 +52,9 @@ html, body, #root {
   --ts-display: clamp(3.5rem, 7.5vw, 6.5rem);
   --ts-h1:      clamp(2.8rem, 5.5vw, 4.8rem);
   --ts-h2:      clamp(2rem,   3.6vw, 3rem);
-  --ts-h3:      1.05rem;   /* 16.8px — card headings */
-  --ts-body:    0.9375rem; /* 15px   — all body copy */
-  --ts-small:   0.8125rem; /* 13px   — supporting    */
+  --ts-h3:      clamp(1rem, 0.9rem + 0.3vw, 1.1rem);
+  --ts-body:    clamp(0.9rem, 0.85rem + 0.2vw, 1rem);
+  --ts-small:   clamp(0.78rem, 0.74rem + 0.2vw, 0.86rem);
   --ts-label:   0.6875rem; /* 11px   — mono tags      */
 
   /* ── Leading (line-height) ───────────── */
@@ -74,8 +80,8 @@ html, body, #root {
   --sp-14: 56px;
 
   /* ── Layout ─────────────────────────── */
-  --sidebar-w:   304px;   /* all side panels */
-  --slide-px:    56px;    /* horizontal edge padding */
+  --sidebar-w:   clamp(248px, 24vw, 304px);   /* all side panels */
+  --slide-px:    clamp(16px, 4.2vw, 56px);    /* horizontal edge padding */
   --card-radius: 16px;    /* all cards */
   --card-p:      20px;    /* all card padding */
   --tag-radius:  5px;
@@ -331,7 +337,7 @@ button { font-family: inherit; }
 .chrome {
   display: flex;
   align-items: center;
-  padding: 0 28px;
+  padding: 0 clamp(12px, 3.2vw, 28px);
   height: 44px;
   flex-shrink: 0;
   background: rgba(7,7,15,.88);
@@ -339,4 +345,161 @@ button { font-family: inherit; }
   -webkit-backdrop-filter: blur(20px);
   border-color: var(--hairline);
   z-index: 50;
+}
+
+.app-shell {
+  min-height: 100dvh;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+
+.touch-target {
+  min-height: 34px;
+}
+
+.top-chips {
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  padding-block: 2px;
+}
+.top-chips::-webkit-scrollbar {
+  display: none;
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+  :root {
+    --ts-display: clamp(2.2rem, 11vw, 2.9rem);
+    --ts-h1: clamp(1.9rem, 10vw, 2.8rem);
+    --ts-h2: clamp(1.4rem, 6.2vw, 1.9rem);
+    --slide-px: 12px;
+    --card-p: 14px;
+    --sp-5: 16px;
+    --sp-6: 20px;
+    --sp-8: 24px;
+  }
+
+  .chrome {
+    min-height: 52px;
+    height: auto;
+    row-gap: 8px;
+    flex-wrap: wrap;
+    padding-block: 8px;
+  }
+
+  .touch-target {
+    min-height: 40px;
+  }
+}
+
+/* Large mobile + tablet */
+@media (max-width: 1023px) {
+  .slide-split {
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .slide-panel {
+    width: 100%;
+    height: auto;
+    max-height: none;
+    padding: var(--sp-5) var(--slide-px);
+    gap: var(--sp-3);
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .slide-main {
+    width: 100%;
+    padding: var(--sp-5) var(--slide-px) !important;
+    overflow: visible !important;
+  }
+
+  .slide-col {
+    justify-content: flex-start;
+    overflow-y: auto;
+  }
+
+  .phase-cards {
+    flex-wrap: wrap;
+  }
+
+  .phase-cards > button {
+    min-width: min(100%, 280px);
+    flex: 1 1 240px !important;
+  }
+
+  .matrix-wrap {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: var(--sp-2);
+  }
+
+  .heuristics-nav {
+    grid-template-columns: 1fr !important;
+  }
+
+  .maturity-detail {
+    flex-direction: column;
+  }
+
+  .bottom-chrome {
+    gap: var(--sp-2) !important;
+  }
+
+  .side-dots {
+    display: none !important;
+  }
+
+  .cta-layout {
+    flex-direction: column;
+    align-items: stretch !important;
+    justify-content: flex-start;
+    max-height: none !important;
+    overflow-y: auto;
+    gap: var(--sp-5) !important;
+    padding-block: var(--sp-5);
+  }
+
+  .cta-sidebar {
+    width: 100% !important;
+  }
+
+  .cta-list {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
+
+/* Small + large mobile */
+@media (max-width: 767px) {
+  .stage-flow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--sp-3);
+  }
+
+  .stage-item {
+    width: 100%;
+  }
+
+  .stage-card {
+    width: 100% !important;
+  }
+
+  .stage-connector {
+    display: none !important;
+  }
+}
+
+/* Wide desktop */
+@media (min-width: 1536px) {
+  :root {
+    --sidebar-w: 336px;
+    --slide-px: 64px;
+  }
 }

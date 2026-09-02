@@ -198,7 +198,7 @@ function S1({ active }: { active: boolean }) {
   ];
 
   return (
-    <div className="noise relative w-full h-full flex overflow-hidden"
+    <div className="noise slide-split relative w-full h-full flex overflow-hidden"
       style={{ background: "var(--bg)" }}>
       <Glow x="28%" y="62%" r={340} color="rgba(139,92,246,.13)" />
       <Glow x="76%" y="28%" r={260} color="rgba(20,184,166,.09)" />
@@ -229,7 +229,7 @@ function S1({ active }: { active: boolean }) {
       </div>
 
       {/* Right: full iceberg — 2-section layout, always fits */}
-      <div className="relative z-10 flex-1 flex flex-col justify-center"
+      <div className="slide-main relative z-10 flex-1 flex flex-col justify-center"
         style={{ padding: "var(--sp-6) var(--slide-px) var(--sp-6) var(--sp-5)", gap: "var(--sp-2)", minHeight: 0 }}>
         {go && <>
 
@@ -240,7 +240,7 @@ function S1({ active }: { active: boolean }) {
               <div style={{ flex: 1, height: 1, background: "rgba(139,92,246,.25)" }} />
             </div>
             {/* 3 items as a horizontal row */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "var(--sp-3)" }}>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3" style={{ gap: "var(--sp-3)" }}>
               {above.map(({ k, label, sub }) => (
                 <div key={k}
                   onMouseEnter={() => setHov(k)} onMouseLeave={() => setHov(null)}
@@ -273,7 +273,7 @@ function S1({ active }: { active: boolean }) {
               <div style={{ flex: 1, height: 1, background: "rgba(20,184,166,.25)" }} />
             </div>
             {/* 7 items in a 3+2+2 grid → always 3 columns */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "var(--sp-3)" }}>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3" style={{ gap: "var(--sp-3)" }}>
               {below.map(({ k, label, sub }, idx) => (
                 <div key={k}
                   onMouseEnter={() => setHov(k)} onMouseLeave={() => setHov(null)}
@@ -282,7 +282,6 @@ function S1({ active }: { active: boolean }) {
                     background: hov === k ? "rgba(20,184,166,.14)" : "rgba(20,184,166,.05)",
                     border: `1px solid ${hov === k ? "rgba(20,184,166,.4)" : "rgba(20,184,166,.18)"}`,
                     cursor: "default", transition: "background .18s, border-color .18s",
-                    gridColumn: idx === 6 ? "3 / 4" : undefined,
                   }}>
                   <p style={{ fontSize: "var(--ts-small)", fontWeight: 600, color: "var(--t2)",
                     marginBottom: "var(--sp-1)" }}>{label}</p>
@@ -328,7 +327,7 @@ function S2({ active }: { active: boolean }) {
   const active_cell = cells.find(c => c.id === sel) ?? null;
 
   return (
-    <div className="noise relative w-full h-full flex overflow-hidden"
+    <div className="noise slide-split relative w-full h-full flex overflow-hidden"
       style={{ background: "var(--bg)" }}>
       <Glow x="50%" y="50%" r={440} color="rgba(139,92,246,.09)" />
 
@@ -373,11 +372,11 @@ function S2({ active }: { active: boolean }) {
       </div>
 
       {/* 2×2 grid */}
-      <div className="relative z-10 flex-1 flex items-center justify-center">
+      <div className="slide-main relative z-10 flex-1 flex items-center justify-center">
         {go && (
-          <div className="a-scale d3">
+          <div className="matrix-wrap a-scale d3">
             {/* Column headers */}
-            <div style={{ display: "grid", gridTemplateColumns: "28px 1fr 1fr",
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(20px, 28px) 1fr 1fr",
               marginBottom: "var(--sp-3)" }}>
               <div />
               {["Qualitative", "Quantitative"].map(l => (
@@ -385,7 +384,7 @@ function S2({ active }: { active: boolean }) {
               ))}
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "28px 1fr 1fr",
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(20px, 28px) 1fr 1fr",
               gridTemplateRows: "1fr 1fr", gap: "var(--sp-3)" }}>
               {/* Row label — Attitudinal */}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center",
@@ -404,11 +403,12 @@ function S2({ active }: { active: boolean }) {
               {/* 4 cells */}
               {cells.map(c => (
                 <button key={c.id}
+                  className="touch-target"
                   onClick={() => setSel(sel === c.id ? null : c.id)}
                   onMouseEnter={() => setHov2(c.id)}
                   onMouseLeave={() => setHov2(null)}
                   style={{
-                    width: 210, minHeight: 168,
+                    width: "100%", minHeight: "clamp(136px, 22vh, 168px)",
                     background: sel === c.id ? `color-mix(in srgb, ${c.color} 12%, transparent)` : "var(--surface)",
                     border: `1px solid ${sel === c.id ? `${c.color}60` : hov2 === c.id ? `${c.color}38` : "var(--hairline)"}`,
                     borderRadius: "var(--card-radius)",
@@ -582,14 +582,14 @@ function S3({ active }: { active: boolean }) {
 
       {/* Phase cards */}
       {go && (
-        <div className="flex justify-center"
+        <div className="phase-cards flex justify-center"
           style={{ gap: "var(--sp-3)", paddingInline: "var(--slide-px)" }}>
           {phases.map((p, i) => {
             const clr = ["#8b5cf6","#ec4899","#14b8a6","#f59e0b"][i];
             const active = phase === i;
             return (
               <button key={p.id} onClick={() => setPhase(i)}
-                className={`a-up d${i + 3} flex-1 text-left`}
+                className={`touch-target a-up d${i + 3} flex-1 text-left`}
                 style={{
                   maxWidth: 240,
                   background: active
@@ -690,7 +690,7 @@ function S4({ active }: { active: boolean }) {
   const t = tabs[tab];
 
   return (
-    <div className="noise relative w-full h-full flex overflow-hidden"
+    <div className="noise slide-split relative w-full h-full flex overflow-hidden"
       style={{ background: "var(--bg)" }}>
       <Glow x="72%" y="40%" r={360} color="rgba(139,92,246,.13)" />
 
@@ -702,7 +702,7 @@ function S4({ active }: { active: boolean }) {
           <nav style={{ display: "flex", flexDirection: "column", gap: "var(--sp-2)" }}>
             {tabs.map((tb, i) => (
               <button key={i} onClick={() => setTab(i)}
-                className={`a-left d${i + 3} text-left`}
+                className={`touch-target a-left d${i + 3} text-left`}
                 style={{
                   padding: "var(--sp-3) var(--sp-4)",
                   borderRadius: 10,
@@ -724,7 +724,7 @@ function S4({ active }: { active: boolean }) {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 flex-1 flex flex-col justify-center overflow-hidden"
+      <div className="slide-main relative z-10 flex-1 flex flex-col justify-center overflow-hidden"
         style={{ padding: "clamp(16px,4vh,48px) var(--slide-px) clamp(16px,4vh,48px) var(--sp-6)" }}>
         {go && (
           <div key={tab} className="a-up w-full" style={{ maxWidth: 560 }}>
@@ -861,12 +861,12 @@ function S5({ active }: { active: boolean }) {
       )}
 
       {go && (
-        <div className="flex items-stretch justify-center"
+        <div className="stage-flow flex items-stretch justify-center"
           style={{ paddingInline: "var(--slide-px)" }}>
           {stages.map((s, i) => (
-            <div key={i} className="flex items-stretch">
+            <div key={i} className="flex items-stretch stage-item">
               <button onClick={() => setStep(i)}
-                className={`a-up d${i + 3} text-left flex flex-col`}
+                className={`touch-target a-up d${i + 3} text-left flex flex-col stage-card`}
                 style={{
                   width: "clamp(130px, 14vw, 190px)",
                   background: step === i ? `${s.color}14` : step >= i ? `${s.color}07` : "var(--surface)",
@@ -900,7 +900,7 @@ function S5({ active }: { active: boolean }) {
 
               {/* Arrow connector between stages */}
               {i < stages.length - 1 && (
-                <div className="flex items-center shrink-0"
+                <div className="stage-connector flex items-center shrink-0"
                   style={{ width: "var(--sp-4)", justifyContent: "center" }}>
                   <span style={{
                     fontFamily: "var(--ff-mono)", fontSize: 16,
@@ -964,7 +964,7 @@ function S6({ active }: { active: boolean }) {
 
         {/* Big stats */}
         {go && (
-          <div className="grid grid-cols-4"
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4"
             style={{ gap: "var(--sp-3)", paddingInline: "var(--slide-px)",
               marginBottom: "clamp(8px,1.5vh,20px)" }}>
             {big.map((s, i) => (
@@ -988,7 +988,7 @@ function S6({ active }: { active: boolean }) {
 
         {/* Supporting stats */}
         {go && (
-          <div className="grid grid-cols-2"
+          <div className="grid grid-cols-1 lg:grid-cols-2"
             style={{ gap: "var(--sp-3)", paddingInline: "var(--slide-px)" }}>
             {small.map((s, i) => (
               <div key={i} className={`card a-left d${i + 6} flex items-start`}
@@ -1047,7 +1047,7 @@ function S7({ active }: { active: boolean }) {
   const h = heuristics[sel];
 
   return (
-    <div className="noise relative w-full h-full flex overflow-hidden"
+    <div className="noise slide-split relative w-full h-full flex overflow-hidden"
       style={{ background: "var(--bg)" }}>
       <Glow x="76%" y="50%" r={400} color="rgba(139,92,246,.13)" />
 
@@ -1059,10 +1059,10 @@ function S7({ active }: { active: boolean }) {
             Nielsen's 10<br /><span className="shimmer">Heuristics</span>
           </h2>
           {/* 2-column grid: 5 rows × 2 cols instead of 10 rows × 1 col */}
-          <nav style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-2)" }}>
+          <nav className="heuristics-nav" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-2)" }}>
             {heuristics.map((hr, i) => (
               <button key={i} onClick={() => setSel(i)}
-                className="a-up text-left"
+                className="touch-target a-up text-left"
                 style={{
                   animationDelay: `${0.04 + i * 0.04}s`,
                   padding: "var(--sp-2) var(--sp-3)",
@@ -1083,7 +1083,7 @@ function S7({ active }: { active: boolean }) {
       </div>
 
       {/* Detail */}
-      <div className="relative z-10 flex-1 flex items-center"
+      <div className="slide-main relative z-10 flex-1 flex items-center"
         style={{ paddingInline: "var(--sp-6) var(--slide-px)", minHeight: 0, overflow: "hidden" }}>
         {go && (
           <div key={sel} className="a-up" style={{ maxWidth: 480 }}>
@@ -1137,6 +1137,13 @@ function S7({ active }: { active: boolean }) {
 function S8({ active }: { active: boolean }) {
   const go = useEnter(active);
   const [hov, setHov] = useState<number | null>(null);
+  const [locked, setLocked] = useState<number | null>(null);
+  useEffect(() => {
+    if (!go) {
+      setHov(null);
+      setLocked(null);
+    }
+  }, [go]);
 
   const levels = [
     { n: 1, name: "Absent",      c: "#ef4444", h: "18%",
@@ -1155,6 +1162,7 @@ function S8({ active }: { active: boolean }) {
       org:  "UX influences company strategy. Research is a core capability, not a nice-to-have.",
       res:  "Almost no major decision gets made without understanding what users actually need." },
   ];
+  const activeLevel = locked ?? hov;
 
   return (
     <div className="noise relative w-full h-full overflow-hidden"
@@ -1185,22 +1193,23 @@ function S8({ active }: { active: boolean }) {
           {levels.map((l, i) => (
             <div key={l.n} className={`a-up d${i + 3} flex flex-col items-center flex-1`}
               style={{ maxWidth: 170, cursor: "default" }}
-              onMouseEnter={() => setHov(i)} onMouseLeave={() => setHov(null)}>
+              onMouseEnter={() => setHov(i)} onMouseLeave={() => setHov(null)}
+              onClick={() => setLocked(prev => prev === i ? null : i)}>
 
               {/* Bar */}
               <div className="w-full rounded-t-2xl transition-all duration-500"
                 style={{
                   height: l.h,
                   background: `linear-gradient(to top, ${l.c}30, ${l.c}10)`,
-                  borderTop: `1px solid ${hov === i ? l.c + "60" : l.c + "22"}`,
-                  borderRight: `1px solid ${hov === i ? l.c + "60" : l.c + "22"}`,
+                  borderTop: `1px solid ${activeLevel === i ? l.c + "60" : l.c + "22"}`,
+                  borderRight: `1px solid ${activeLevel === i ? l.c + "60" : l.c + "22"}`,
                   borderBottom: "none",
-                  borderLeft: `1px solid ${hov === i ? l.c + "60" : l.c + "22"}`,
-                  transform: hov === i ? "scaleY(1.04)" : "scaleY(1)",
+                  borderLeft: `1px solid ${activeLevel === i ? l.c + "60" : l.c + "22"}`,
+                  transform: activeLevel === i ? "scaleY(1.04)" : "scaleY(1)",
                   transformOrigin: "bottom",
                 }}>
                 <div className="h-0.5 rounded-t-2xl"
-                  style={{ background: l.c, opacity: hov === i ? 1 : .45,
+                  style={{ background: l.c, opacity: activeLevel === i ? 1 : .45,
                     transition: "opacity .28s" }} />
               </div>
 
@@ -1224,50 +1233,50 @@ function S8({ active }: { active: boolean }) {
           paddingInline: "var(--slide-px)", display: "flex",
           alignItems: "center", justifyContent: "center" }}>
 
-          {hov !== null ? (
-            <div key={hov} className="a-in w-full flex items-stretch"
+          {activeLevel !== null ? (
+            <div key={activeLevel} className="maturity-detail a-in w-full flex items-stretch"
               style={{
                 gap: "var(--sp-5)",
-                background: levels[hov].c + "0d",
-                border: `1px solid ${levels[hov].c}30`,
+                background: levels[activeLevel].c + "0d",
+                border: `1px solid ${levels[activeLevel].c}30`,
                 borderRadius: "var(--card-radius)",
                 padding: "var(--sp-4) var(--sp-5)",
               }}>
               {/* Org column */}
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p className="t-label" style={{ color: levels[hov].c, marginBottom: "var(--sp-2)" }}>
+                <p className="t-label" style={{ color: levels[activeLevel].c, marginBottom: "var(--sp-2)" }}>
                   Organisation
                 </p>
                 <p className="t-small" style={{ color: "var(--t2)", lineHeight: "var(--lh-tight)" }}>
-                  {levels[hov].org}
+                  {levels[activeLevel].org}
                 </p>
               </div>
               {/* Divider */}
-              <div style={{ width: 1, background: levels[hov].c + "25", flexShrink: 0 }} />
+              <div style={{ width: 1, background: levels[activeLevel].c + "25", flexShrink: 0 }} />
               {/* Research column */}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p className="t-label" style={{ color: "var(--t3)", marginBottom: "var(--sp-2)" }}>
                   Research
                 </p>
                 <p className="t-small" style={{ color: "var(--t2)", lineHeight: "var(--lh-tight)" }}>
-                  {levels[hov].res}
+                  {levels[activeLevel].res}
                 </p>
               </div>
               {/* Level badge */}
               <div style={{
                 flexShrink: 0, display: "flex", flexDirection: "column",
                 alignItems: "center", justifyContent: "center",
-                background: levels[hov].c + "18",
-                border: `1px solid ${levels[hov].c}30`,
+                background: levels[activeLevel].c + "18",
+                border: `1px solid ${levels[activeLevel].c}30`,
                 borderRadius: 12,
                 padding: "var(--sp-3) var(--sp-5)",
               }}>
-                <p className="t-label" style={{ color: levels[hov].c, marginBottom: "var(--sp-1)" }}>
-                  Level {levels[hov].n}
+                <p className="t-label" style={{ color: levels[activeLevel].c, marginBottom: "var(--sp-1)" }}>
+                  Level {levels[activeLevel].n}
                 </p>
                 <p style={{ fontFamily: "var(--ff-display)", fontWeight: 700,
-                  fontSize: "1.05rem", color: levels[hov].c, lineHeight: 1.2 }}>
-                  {levels[hov].name}
+                  fontSize: "1.05rem", color: levels[activeLevel].c, lineHeight: 1.2 }}>
+                  {levels[activeLevel].name}
                 </p>
               </div>
             </div>
@@ -1318,12 +1327,12 @@ function S9({ active }: { active: boolean }) {
       <Glow x="18%" y="78%" r={260} color="rgba(236,72,153,.09)" />
       <Glow x="86%" y="68%" r={220} color="rgba(20,184,166,.07)" />
 
-      <div className="relative z-10 flex items-center"
+      <div className="cta-layout relative z-10 flex items-center"
         style={{ gap: "var(--sp-10)", paddingInline: "var(--slide-px)",
           width: "100%", maxWidth: 960, maxHeight: "100%" }}>
 
         {/* Left: hero text */}
-        <div style={{ width: "var(--sidebar-w)", flexShrink: 0 }}>
+        <div className="cta-sidebar" style={{ width: "var(--sidebar-w)", flexShrink: 0 }}>
           {go && <>
             <div className="a-in d1" style={{ marginBottom: "var(--sp-6)" }}>
               <SlideTag num="09" label="Action" color="var(--amber)" />
@@ -1362,8 +1371,8 @@ function S9({ active }: { active: boolean }) {
         </div>
 
         {/* Right: checklist — scrollable on short screens */}
-        <div className="flex-1 flex flex-col" style={{ gap: "var(--sp-3)",
-          overflowY: "auto", maxHeight: "calc(100vh - 120px)" }}>
+        <div className="cta-list flex-1 flex flex-col" style={{ gap: "var(--sp-3)",
+          overflowY: "auto", maxHeight: "calc(100dvh - 120px)" }}>
           {go && items.map((item, i) => {
             const checked = done.has(i);
             return (
@@ -1458,7 +1467,7 @@ export default function App() {
   const pct = ((cur + 1) / SLIDES.length) * 100;
 
   return (
-    <div style={{ width: "100%", height: "100%", display: "flex",
+    <div className="app-shell" style={{ width: "100%", height: "100%", display: "flex",
       flexDirection: "column", background: "var(--bg)" }}>
 
       {/* Top chrome */}
@@ -1468,10 +1477,11 @@ export default function App() {
         </span>
 
         {/* Slide chips */}
-        <div style={{ display: "flex", gap: "var(--sp-1)", flex: 1,
+        <div className="top-chips" style={{ display: "flex", gap: "var(--sp-1)", flex: 1,
           justifyContent: "center" }}>
           {SLIDES.map((s, i) => (
             <button key={i} onClick={() => goTo(i)} title={s.label}
+              className="touch-target"
               style={{
                 padding: "3px 8px", borderRadius: 5,
                 background: i === cur ? "rgba(139,92,246,.22)" : "transparent",
@@ -1502,9 +1512,10 @@ export default function App() {
       </div>
 
       {/* Bottom chrome */}
-      <div className="chrome" style={{ borderTop: "1px solid var(--hairline)",
+      <div className="chrome bottom-chrome" style={{ borderTop: "1px solid var(--hairline)",
         gap: "var(--sp-4)" }}>
         <button onClick={() => goTo(cur - 1)} disabled={cur === 0}
+          className="touch-target"
           style={{
             padding: "6px 18px", borderRadius: 8,
             fontFamily: "var(--ff-body)", fontSize: "var(--ts-small)",
@@ -1522,6 +1533,7 @@ export default function App() {
         </span>
 
         <button onClick={() => goTo(cur + 1)} disabled={cur === SLIDES.length - 1}
+          className="touch-target"
           style={{
             padding: "6px 18px", borderRadius: 8,
             fontFamily: "var(--ff-body)", fontSize: "var(--ts-small)",
@@ -1534,7 +1546,7 @@ export default function App() {
       </div>
 
       {/* Side nav dots */}
-      <div style={{
+      <div className="side-dots" style={{
         position: "fixed", right: 14, top: "50%",
         transform: "translateY(-50%)",
         display: "flex", flexDirection: "column",
@@ -1542,6 +1554,7 @@ export default function App() {
       }}>
         {SLIDES.map((s, i) => (
           <button key={i} onClick={() => goTo(i)} title={s.label}
+            className="touch-target"
             style={{
               width: i === cur ? 8 : 5, height: i === cur ? 8 : 5,
               borderRadius: "50%",
