@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 
 // ─── Primitives ───────────────────────────────────────────────────────────────
 
-function useEnter(active: boolean, delay = 60) {
+function useEnter(active: boolean, delay = 20) {
   const [go, setGo] = useState(false);
   useEffect(() => {
     if (!active) { setGo(false); return; }
@@ -46,28 +46,53 @@ function Rule({ color = "var(--hairline)" }: { color?: string }) {
 }
 
 /* Animated stat counter */
-function AnimNum({ to, suffix = "", duration = 1300, delay = 0, active }: {
-  to: number; suffix?: string; duration?: number; delay?: number; active: boolean;
+function AnimNum({ to, suffix = "", duration = 1300, delay = 0, active, once = true }: {
+  to: number; suffix?: string; duration?: number; delay?: number; active: boolean; once?: boolean;
 }) {
   const [v, setV] = useState(0);
   const [started, setStarted] = useState(false);
+  const hasCompleted = useRef(false);
+
   useEffect(() => {
-    if (!active) { setV(0); setStarted(false); return; }
+    if (!active) {
+      if (once && hasCompleted.current) {
+        setV(to);
+      }
+      if (!once) {
+        setV(0);
+        setStarted(false);
+      }
+      return;
+    }
+
+    if (once && hasCompleted.current) {
+      setV(to);
+      setStarted(false);
+      return;
+    }
+
     const t = setTimeout(() => setStarted(true), delay);
     return () => clearTimeout(t);
-  }, [active, delay]);
+  }, [active, delay, once, to]);
+
   useEffect(() => {
     if (!started) return;
     const t0 = performance.now();
     let raf: number;
     const tick = (now: number) => {
       const p = Math.min((now - t0) / duration, 1);
-      setV(Math.round((1 - Math.pow(1 - p, 4)) * to));
-      if (p < 1) raf = requestAnimationFrame(tick);
+      const next = Math.round((1 - Math.pow(1 - p, 4)) * to);
+      setV(next);
+      if (p >= 1) {
+        if (once) hasCompleted.current = true;
+        return;
+      }
+      raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [started, to, duration]);
+  }, [started, to, duration, once]);
+
   return <>{v}{suffix}</>;
 }
 
@@ -181,6 +206,16 @@ function S0({ active }: { active: boolean }) {
 function S1({ active }: { active: boolean }) {
   const go = useEnter(active);
   const [hov, setHov] = useState<string | null>(null);
+  const [clicked, setClicked] = useState<Set<string>>(new Set());
+
+  const toggleClicked = (k: string) => {
+    setClicked(prev => {
+      const next = new Set(prev);
+      if (next.has(k)) next.delete(k);
+      else next.add(k);
+      return next;
+    });
+  };
 
   const above = [
     { k: "v0", label: "Visual Design",       sub: "Colour, typography, layout, iconography" },
@@ -197,13 +232,14 @@ function S1({ active }: { active: boolean }) {
     { k: "h6", label: "Service Design",           sub: "End-to-end journey, backstage processes" },
   ];
 
+  const isActive = (k: string) => hov === k || clicked.has(k);
+
   return (
     <div className="noise slide-split relative w-full h-full flex overflow-hidden"
       style={{ background: "var(--bg)" }}>
       <Glow x="28%" y="62%" r={340} color="rgba(139,92,246,.13)" />
       <Glow x="76%" y="28%" r={260} color="rgba(20,184,166,.09)" />
 
-      {/* Left panel */}
       <div className="slide-panel">
         {go && <>
           <SlideTag num="01" label="Foundation" />
@@ -228,71 +264,67 @@ function S1({ active }: { active: boolean }) {
         </>}
       </div>
 
-      {/* Right: full iceberg — 2-section layout, always fits */}
       <div className="slide-main relative z-10 flex-1 flex flex-col justify-center"
         style={{ padding: "var(--sp-6) var(--slide-px) var(--sp-6) var(--sp-5)", gap: "var(--sp-2)", minHeight: 0 }}>
         {go && <>
-
-          {/* ── VISIBLE section ── */}
           <div className="a-up d2">
             <div className="flex items-center" style={{ gap: "var(--sp-3)", marginBottom: "var(--sp-2)" }}>
               <span className="t-label" style={{ color: "var(--violet-lt)" }}>↑ Visible (10%)</span>
               <div style={{ flex: 1, height: 1, background: "rgba(139,92,246,.25)" }} />
             </div>
-            {/* 3 items as a horizontal row */}
             <div className="grid sm:grid-cols-2 lg:grid-cols-3" style={{ gap: "var(--sp-3)" }}>
               {above.map(({ k, label, sub }) => (
                 <div key={k}
-                  onMouseEnter={() => setHov(k)} onMouseLeave={() => setHov(null)}
+                  onMouseEnter={() => setHov(k)}
+                  onMouseLeave={() => setHov(null)}
+                  onClick={() => toggleClicked(k)}
                   style={{
                     padding: "var(--sp-3) var(--sp-4)", borderRadius: "var(--card-radius)",
-                    background: hov === k ? "rgba(139,92,246,.18)" : "rgba(139,92,246,.07)",
-                    border: `1px solid ${hov === k ? "rgba(139,92,246,.45)" : "rgba(139,92,246,.2)"}`,
-                    cursor: "default", transition: "background .18s, border-color .18s",
+                    background: isActive(k) ? "rgba(139,92,246,.18)" : "rgba(139,92,246,.07)",
+                    border: `1px solid ${isActive(k) ? "rgba(139,92,246,.45)" : "rgba(139,92,246,.2)"}`,
+                    cursor: "pointer", transition: "background .18s, border-color .18s",
                   }}>
                   <p className="t-h3" style={{ marginBottom: "var(--sp-1)" }}>{label}</p>
                   <p className="t-small" style={{ color: "var(--t3)",
-                    opacity: hov === k ? 1 : 0.4, transition: "opacity .18s",
+                    opacity: isActive(k) ? 1 : 0.4, transition: "opacity .18s",
                     lineHeight: "var(--lh-tight)" }}>{sub}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* ── Waterline ── */}
           <div className="a-up d3 flex items-center" style={{ gap: "var(--sp-3)" }}>
             <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg,rgba(56,189,248,.15),rgba(56,189,248,.6))" }} />
             <span className="t-label" style={{ color: "var(--sky)", letterSpacing: "0.2em" }}>waterline</span>
             <div style={{ flex: 1, height: 1, background: "linear-gradient(90deg,rgba(56,189,248,.6),rgba(56,189,248,.15))" }} />
           </div>
 
-          {/* ── HIDDEN section ── */}
           <div className="a-up d4">
             <div className="flex items-center" style={{ gap: "var(--sp-3)", marginBottom: "var(--sp-2)" }}>
               <span className="t-label" style={{ color: "var(--teal)" }}>↓ Hidden (90%)</span>
               <div style={{ flex: 1, height: 1, background: "rgba(20,184,166,.25)" }} />
             </div>
-            {/* 7 items in a 3+2+2 grid → always 3 columns */}
             <div className="grid sm:grid-cols-2 lg:grid-cols-3" style={{ gap: "var(--sp-3)" }}>
-              {below.map(({ k, label, sub }, idx) => (
+              {below.map(({ k, label, sub }) => (
                 <div key={k}
-                  onMouseEnter={() => setHov(k)} onMouseLeave={() => setHov(null)}
+                  onMouseEnter={() => setHov(k)}
+                  onMouseLeave={() => setHov(null)}
+                  onClick={() => toggleClicked(k)}
                   style={{
                     padding: "var(--sp-3) var(--sp-4)", borderRadius: "var(--card-radius)",
-                    background: hov === k ? "rgba(20,184,166,.14)" : "rgba(20,184,166,.05)",
-                    border: `1px solid ${hov === k ? "rgba(20,184,166,.4)" : "rgba(20,184,166,.18)"}`,
-                    cursor: "default", transition: "background .18s, border-color .18s",
+                    background: isActive(k) ? "rgba(20,184,166,.14)" : "rgba(20,184,166,.05)",
+                    border: `1px solid ${isActive(k) ? "rgba(20,184,166,.4)" : "rgba(20,184,166,.18)"}`,
+                    cursor: "pointer", transition: "background .18s, border-color .18s",
                   }}>
                   <p style={{ fontSize: "var(--ts-small)", fontWeight: 600, color: "var(--t2)",
                     marginBottom: "var(--sp-1)" }}>{label}</p>
                   <p className="t-small" style={{ color: "var(--t3)",
-                    opacity: hov === k ? 1 : 0.4, transition: "opacity .18s",
+                    opacity: isActive(k) ? 1 : 0.4, transition: "opacity .18s",
                     lineHeight: "var(--lh-tight)" }}>{sub}</p>
                 </div>
               ))}
             </div>
           </div>
-
         </>}
       </div>
     </div>
@@ -449,12 +481,24 @@ function S2({ active }: { active: boolean }) {
 function S3({ active }: { active: boolean }) {
   const go = useEnter(active);
   const [phase, setPhase] = useState(-1);
+  const [showHint, setShowHint] = useState(false);
+  const [hoveredPhase, setHoveredPhase] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!go) { setPhase(-1); return; }
+    if (!go) { setPhase(-1); setShowHint(false); setHoveredPhase(null); return; }
     const ts = [300, 720, 1140, 1560].map((d, i) => setTimeout(() => setPhase(i), d));
-    return () => ts.forEach(clearTimeout);
+    const hintTimer = setTimeout(() => setShowHint(true), 1560);
+    return () => {
+      ts.forEach(clearTimeout);
+      clearTimeout(hintTimer);
+    };
   }, [go]);
+
+  useEffect(() => {
+    if (!showHint) return;
+    const t = setTimeout(() => setShowHint(false), 3000);
+    return () => clearTimeout(t);
+  }, [showHint]);
 
   const phases = [
     { id: 0, label: "Discover", sub: "Diverge on the problem",  color: "var(--violet)",
@@ -500,19 +544,19 @@ function S3({ active }: { active: boolean }) {
           <svg viewBox="0 0 660 186"
             style={{ display: "block", width: "min(660px, 100%)", height: "auto",
               margin: "0 auto", overflow: "visible" }}>
-            {/* 4 phase quadrant fills — triangular halves of each diamond */}
             {[
               { pts: "20,92 190,18 190,166",   color: "#8b5cf6" }, // Discover
               { pts: "190,18 335,92 190,166",  color: "#ec4899" }, // Define
               { pts: "335,92 480,18 480,166",  color: "#14b8a6" }, // Develop
               { pts: "480,18 640,92 480,166",  color: "#f59e0b" }, // Deliver
             ].map((q, i) => (
-              <polygon key={i} points={q.pts}
-                fill={phase >= i ? q.color + "22" : q.color + "07"}
-                stroke={phase >= i ? q.color : "transparent"}
-                strokeWidth="1.5" strokeOpacity={phase >= i ? .4 : 0}
-                style={{ transition: "all .5s ease", cursor: "pointer" }}
-                onClick={() => setPhase(i)} />
+              <g key={i} onClick={() => setPhase(i)} style={{ cursor: "pointer" }}>
+                <polygon points={q.pts}
+                  fill={phase >= i ? q.color + "22" : q.color + "07"}
+                  stroke={phase >= i ? q.color : "transparent"}
+                  strokeWidth="1.5" strokeOpacity={phase >= i ? .4 : 0}
+                  style={{ transition: "all .5s ease" }} />
+              </g>
             ))}
 
             {/* Single connected double-diamond outline */}
@@ -584,28 +628,41 @@ function S3({ active }: { active: boolean }) {
 
       {/* Phase cards */}
       {go && (
-        <div className="phase-cards flex justify-center"
+        <div className="phase-cards flex justify-center relative"
           style={{ gap: "var(--sp-3)", paddingInline: "var(--slide-px)" }}>
+          {showHint && (
+            <div className="a-in t-label" style={{
+              position: "absolute",
+              top: -26,
+              right: "var(--slide-px)",
+              color: "var(--t3)",
+              opacity: 0.9,
+            }}>
+              Tap to explore →
+            </div>
+          )}
           {phases.map((p, i) => {
             const clr = ["#8b5cf6","#ec4899","#14b8a6","#f59e0b"][i];
             const active = phase === i;
+            const isHover = hoveredPhase === i;
             return (
               <button key={p.id} onClick={() => setPhase(i)}
+                onMouseEnter={() => setHoveredPhase(i)}
+                onMouseLeave={() => setHoveredPhase(null)}
                 className={`touch-target a-up d${i + 3} flex-1 text-left`}
                 style={{
                   maxWidth: 240,
                   background: active
                     ? `linear-gradient(160deg, ${clr}14 0%, var(--bg2) 65%)`
                     : "var(--surface)",
-                  borderTop: `2px solid ${active ? clr + "55" : clr + "18"}`,
-                  borderRight: `1px solid ${active ? clr + "28" : "var(--hairline)"}`,
-                  borderBottom: `1px solid ${active ? clr + "28" : "var(--hairline)"}`,
-                  borderLeft: `1px solid ${active ? clr + "28" : "var(--hairline)"}`,
+                  borderTop: `2px solid ${active ? clr + "55" : isHover ? clr + "40" : clr + "18"}`,
+                  borderRight: `1px solid ${active ? clr + "28" : isHover ? clr + "40" : "var(--hairline)"}`,
+                  borderBottom: `1px solid ${active ? clr + "28" : isHover ? clr + "40" : "var(--hairline)"}`,
+                  borderLeft: `1px solid ${active ? clr + "28" : isHover ? clr + "40" : "var(--hairline)"}`,
                   borderRadius: "var(--card-radius)",
                   padding: "clamp(8px,1.4vh,14px) var(--sp-4)",
                   transition: "all .3s ease", cursor: "pointer",
                 }}>
-                {/* Phase name + colour dot */}
                 <div className="flex items-center" style={{ gap: "var(--sp-2)", marginBottom: "var(--sp-3)" }}>
                   <div style={{
                     width: 8, height: 8, borderRadius: "50%", background: clr,
@@ -615,14 +672,12 @@ function S3({ active }: { active: boolean }) {
                   }} />
                   <p className="t-label" style={{ color: clr }}>{p.label}</p>
                 </div>
-                {/* Activity list */}
                 <div style={{ display: "flex", flexDirection: "column",
                   gap: "var(--sp-1)", marginBottom: "var(--sp-3)" }}>
                   {p.acts.map(a => (
                     <p key={a} className="t-small" style={{ color: "var(--t2)" }}>· {a}</p>
                   ))}
                 </div>
-                {/* Output */}
                 <div style={{ paddingTop: "var(--sp-2)", borderTop: `1px solid ${clr}20` }}>
                   <p className="t-label" style={{ color: clr, marginBottom: "var(--sp-1)", opacity: .7 }}>
                     Output
@@ -731,7 +786,6 @@ function S4({ active }: { active: boolean }) {
         {go && (
           <div key={tab} className="a-up w-full" style={{ maxWidth: 560 }}>
 
-            {/* Tab header */}
             <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--sp-3)",
               marginBottom: "var(--sp-5)", paddingBottom: "var(--sp-4)",
               borderBottom: "1px solid var(--hairline)" }}>
@@ -741,6 +795,11 @@ function S4({ active }: { active: boolean }) {
                 <p className="t-label" style={{ color: t.clr, marginBottom: "var(--sp-1)" }}>
                   {t.label}
                 </p>
+                {tab === 0 && (
+                  <p className="t-label" style={{ color: "var(--t3)", marginBottom: "var(--sp-2)" }}>
+                    Tell · Elaborate · Describe · Why
+                  </p>
+                )}
                 <p className="t-body" style={{ color: "var(--t2)", lineHeight: "var(--lh-tight)" }}>
                   {t.intro}
                 </p>
@@ -1188,45 +1247,56 @@ function S8({ active }: { active: boolean }) {
         </div>
       )}
 
-      {/* Bar chart — tooltips removed from inside flex-col to prevent overlap */}
       {go && (
         <div className="flex items-end justify-center"
           style={{ gap: "var(--sp-4)", paddingInline: "var(--slide-px)",
             height: "clamp(160px,28vh,240px)" }}>
-          {levels.map((l, i) => (
-            <div key={l.n} className={`a-up d${i + 3} flex flex-col items-center flex-1`}
-              style={{ maxWidth: 170, cursor: "default" }}
-              onMouseEnter={() => setHov(i)} onMouseLeave={() => setHov(null)}
-              onClick={() => setLocked(prev => prev === i ? null : i)}>
-
-              {/* Bar */}
-              <div className="w-full rounded-t-2xl transition-all duration-500"
-                style={{
-                  height: l.h,
-                  background: `linear-gradient(to top, ${l.c}30, ${l.c}10)`,
-                  borderTop: `1px solid ${activeLevel === i ? l.c + "60" : l.c + "22"}`,
-                  borderRight: `1px solid ${activeLevel === i ? l.c + "60" : l.c + "22"}`,
-                  borderBottom: "none",
-                  borderLeft: `1px solid ${activeLevel === i ? l.c + "60" : l.c + "22"}`,
-                  transform: activeLevel === i ? "scaleY(1.04)" : "scaleY(1)",
-                  transformOrigin: "bottom",
-                }}>
-                <div className="h-0.5 rounded-t-2xl"
-                  style={{ background: l.c, opacity: activeLevel === i ? 1 : .45,
-                    transition: "opacity .28s" }} />
+          {levels.map((l, i) => {
+            const showPinHint = activeLevel !== i && hov === i && locked === null;
+            const isPinned = locked === i;
+            return (
+              <div key={l.n} className={`a-up d${i + 3} flex flex-col items-center flex-1 relative`}
+                style={{ maxWidth: 170, cursor: "pointer" }}
+                onMouseEnter={() => setHov(i)} onMouseLeave={() => setHov(null)}
+                onClick={() => setLocked(prev => prev === i ? null : i)}>
+                {showPinHint && (
+                  <div style={{ position: "absolute", bottom: "calc(100% + 12px)", left: "50%",
+                    transform: "translateX(-50%)", whiteSpace: "nowrap", pointerEvents: "none" }}>
+                    <span className="t-label" style={{ color: l.c }}>click to pin ↓</span>
+                  </div>
+                )}
+                {isPinned && (
+                  <div style={{ position: "absolute", bottom: "calc(100% + 12px)", left: "50%",
+                    transform: "translateX(-50%)", whiteSpace: "nowrap", pointerEvents: "none" }}>
+                    <span className="t-label" style={{ color: l.c }}>pinned · click to release</span>
+                  </div>
+                )}
+                <div className="w-full rounded-t-2xl transition-all duration-500"
+                  style={{
+                    height: l.h,
+                    background: `linear-gradient(to top, ${l.c}30, ${l.c}10)`,
+                    borderTop: `1px solid ${activeLevel === i ? l.c + "60" : l.c + "22"}`,
+                    borderRight: `1px solid ${activeLevel === i ? l.c + "60" : l.c + "22"}`,
+                    borderBottom: "none",
+                    borderLeft: `1px solid ${activeLevel === i ? l.c + "60" : l.c + "22"}`,
+                    transform: activeLevel === i ? "scaleY(1.04)" : "scaleY(1)",
+                    transformOrigin: "bottom",
+                  }}>
+                  <div className="h-0.5 rounded-t-2xl"
+                    style={{ background: l.c, opacity: activeLevel === i ? 1 : .45,
+                      transition: "opacity .28s" }} />
+                </div>
+                <div className="text-center" style={{ paddingTop: "var(--sp-3)" }}>
+                  <p className="t-label" style={{ color: l.c, marginBottom: "var(--sp-1)" }}>
+                    Level {l.n}
+                  </p>
+                  <p className="t-h3" style={{ fontSize: "var(--ts-small)", fontWeight: 600 }}>
+                    {l.name}
+                  </p>
+                </div>
               </div>
-
-              {/* Label below bar */}
-              <div className="text-center" style={{ paddingTop: "var(--sp-3)" }}>
-                <p className="t-label" style={{ color: l.c, marginBottom: "var(--sp-1)" }}>
-                  Level {l.n}
-                </p>
-                <p className="t-h3" style={{ fontSize: "var(--ts-small)", fontWeight: 600 }}>
-                  {l.name}
-                </p>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -1334,7 +1404,6 @@ function S9({ active }: { active: boolean }) {
         style={{ gap: "var(--sp-10)", paddingInline: "var(--slide-px)",
           width: "100%", maxWidth: 960, maxHeight: "100%" }}>
 
-        {/* Left: hero text */}
         <div className="cta-sidebar" style={{ width: "var(--sidebar-w)", flexShrink: 0 }}>
           {go && <>
             <div className="a-in d1" style={{ marginBottom: "var(--sp-6)" }}>
@@ -1373,54 +1442,60 @@ function S9({ active }: { active: boolean }) {
           </>}
         </div>
 
-        {/* Right: checklist — scrollable on short screens */}
         <div className="cta-list flex-1 flex flex-col" style={{ gap: "var(--sp-3)",
           overflowY: "auto", maxHeight: "calc(100dvh - 120px)" }}>
-          {go && items.map((item, i) => {
-            const checked = done.has(i);
-            return (
-              <button key={i} onClick={() => toggle(i)}
-                className={`a-right d${i + 2} text-left flex items-center`}
-                style={{
-                  gap: "var(--sp-4)",
-                  padding: "var(--sp-4) var(--sp-5)",
-                  borderRadius: "var(--card-radius)",
-                  background: checked ? "rgba(20,184,166,.08)" : "var(--surface)",
-                  border: `1px solid ${checked ? "rgba(20,184,166,.3)" : "var(--hairline)"}`,
-                  cursor: "pointer", transition: "all .25s",
-                }}>
-                {/* Checkbox */}
-                <div style={{
-                  width: 22, height: 22, borderRadius: 6, flexShrink: 0,
-                  background: checked ? "var(--teal)" : "transparent",
-                  border: `2px solid ${checked ? "var(--teal)" : "rgba(255,255,255,.2)"}`,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  transition: "all .22s",
-                }}>
-                  {checked && <span style={{ fontSize: 11, color: "#fff", lineHeight: 1 }}>✓</span>}
-                </div>
+          {go && <>
+            {done.size === 0 && (
+              <p className="t-label a-in" style={{ color: "var(--t3)", marginBottom: "var(--sp-2)",
+                animation: "glowPulse 2s ease-in-out 3" }}>
+                Check off what you'll try →
+              </p>
+            )}
+            {items.map((item, i) => {
+              const checked = done.has(i);
+              return (
+                <button key={i} onClick={() => toggle(i)}
+                  className={`a-right d${i + 2} text-left flex items-center`}
+                  style={{
+                    gap: "var(--sp-4)",
+                    padding: "var(--sp-4) var(--sp-5)",
+                    borderRadius: "var(--card-radius)",
+                    background: checked ? "rgba(20,184,166,.08)" : "var(--surface)",
+                    border: `1px solid ${checked ? "rgba(20,184,166,.3)" : "var(--hairline)"}`,
+                    cursor: "pointer", transition: "all .25s",
+                  }}>
+                  <div style={{
+                    width: 22, height: 22, borderRadius: 6, flexShrink: 0,
+                    background: checked ? "var(--teal)" : "transparent",
+                    border: `2px solid ${checked ? "var(--teal)" : "rgba(255,255,255,.2)"}`,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    transition: "all .22s",
+                  }}>
+                    {checked && <span style={{ fontSize: 11, color: "#fff", lineHeight: 1 }}>✓</span>}
+                  </div>
 
-                <span style={{ fontSize: "1.25rem", flexShrink: 0 }}>{item.icon}</span>
+                  <span style={{ fontSize: "1.25rem", flexShrink: 0 }}>{item.icon}</span>
 
-                <p style={{ flex: 1, fontSize: "var(--ts-small)",
-                  color: checked ? "var(--t3)" : "var(--t2)",
-                  textDecoration: checked ? "line-through" : "none",
-                  lineHeight: "var(--lh-tight)", transition: "all .22s" }}>
-                  {item.t}
-                </p>
-
-                <div className="flex items-center shrink-0" style={{ gap: "var(--sp-2)" }}>
-                  <p className="t-label" style={{ color: sprintColor(item.sprint) }}>
-                    {item.sprint}
+                  <p style={{ flex: 1, fontSize: "var(--ts-small)",
+                    color: checked ? "var(--t3)" : "var(--t2)",
+                    textDecoration: checked ? "line-through" : "none",
+                    lineHeight: "var(--lh-tight)", transition: "all .22s" }}>
+                    {item.t}
                   </p>
-                  <span className="t-label" style={{
-                    padding: "2px 7px", borderRadius: 4,
-                    background: "var(--surface2)", color: "var(--t3)",
-                  }}>{item.effort}</span>
-                </div>
-              </button>
-            );
-          })}
+
+                  <div className="flex items-center shrink-0" style={{ gap: "var(--sp-2)" }}>
+                    <p className="t-label" style={{ color: sprintColor(item.sprint) }}>
+                      {item.sprint}
+                    </p>
+                    <span className="t-label" style={{
+                      padding: "2px 7px", borderRadius: 4,
+                      background: "var(--surface2)", color: "var(--t3)",
+                    }}>{item.effort}</span>
+                  </div>
+                </button>
+              );
+            })}
+          </>}
         </div>
       </div>
     </div>
@@ -1527,12 +1602,15 @@ export default function App() {
   const [dir, setDir] = useState<1 | -1>(1);
   const [transitioning, setTransitioning] = useState(false);
   const touchX = useRef<number | null>(null);
+  const touchY = useRef<number | null>(null);
+  const prevRef = useRef<number>(0);
 
   const goTo = useCallback((i: number) => {
     if (i === cur || transitioning || i < 0 || i >= SLIDES.length) return;
+    prevRef.current = cur;
     setDir(i > cur ? 1 : -1);
     setTransitioning(true);
-    setTimeout(() => { setCur(i); setTransitioning(false); }, 320);
+    setTimeout(() => { setCur(i); setTransitioning(false); }, 180);
   }, [cur, transitioning]);
 
   useEffect(() => {
@@ -1541,8 +1619,8 @@ export default function App() {
         e.preventDefault(); goTo(cur + 1);
       } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
         e.preventDefault(); goTo(cur - 1);
-      } else if (e.key >= "0" && e.key <= "9") {
-        goTo(parseInt(e.key));
+      } else if (e.key >= "1" && e.key <= "9") {
+        e.preventDefault(); goTo(parseInt(e.key, 10) - 1);
       }
     };
     window.addEventListener("keydown", h);
@@ -1550,6 +1628,7 @@ export default function App() {
   }, [cur, goTo]);
 
   const { C } = SLIDES[cur];
+  const PrevC = SLIDES[prevRef.current].C;
   const pct = ((cur + 1) / SLIDES.length) * 100;
   const isFirst = cur === 0;
   const isLast = cur === SLIDES.length - 1;
@@ -1559,23 +1638,40 @@ export default function App() {
       className="app-shell"
       style={{ width: "100%", height: "100%", display: "flex",
         flexDirection: "column", background: "var(--bg)" }}
-      onTouchStart={e => { touchX.current = e.touches[0].clientX; }}
+      onTouchStart={e => {
+        touchX.current = e.touches[0].clientX;
+        touchY.current = e.touches[0].clientY;
+      }}
       onTouchEnd={e => {
-        if (touchX.current === null) return;
+        if (touchX.current === null || touchY.current === null) return;
         const dx = e.changedTouches[0].clientX - touchX.current;
+        const dy = e.changedTouches[0].clientY - touchY.current;
         touchX.current = null;
-        if (Math.abs(dx) < 48) return;
+        touchY.current = null;
+        if (Math.abs(dx) < 48 || Math.abs(dy) > Math.abs(dx)) return;
         if (dx < 0) goTo(cur + 1);
         else goTo(cur - 1);
       }}
     >
-      {/* Top chrome */}
+      <div role="status" aria-live="polite" aria-atomic="true" style={{
+        position: "absolute",
+        width: 1,
+        height: 1,
+        padding: 0,
+        margin: -1,
+        overflow: "hidden",
+        clip: "rect(0, 0, 0, 0)",
+        whiteSpace: "nowrap",
+        border: 0,
+      }}>
+        Slide {cur + 1} of {SLIDES.length}: {SLIDES[cur].label}
+      </div>
+
       <div className="chrome" style={{ borderBottom: "1px solid var(--hairline)" }}>
         <span className="t-label" style={{ flexShrink: 0 }}>
           UX & CUSTOMER RESEARCH
         </span>
 
-        {/* Slide chips with tooltips */}
         <div className="top-chips" style={{ display: "flex", gap: "var(--sp-1)", flex: 1,
           justifyContent: "center" }}>
           {SLIDES.map((s, i) => (
@@ -1590,8 +1686,19 @@ export default function App() {
         </span>
       </div>
 
-      {/* Slide canvas */}
       <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
+        {transitioning && (
+          <div
+            key={`exit-${prevRef.current}`}
+            style={{
+              position: "absolute", inset: 0,
+              animation: `slideExit${dir > 0 ? "Left" : "Right"} .18s ease both`,
+              pointerEvents: "none",
+            }}
+          >
+            <PrevC active={false} />
+          </div>
+        )}
         <div
           key={cur}
           style={{
@@ -1603,7 +1710,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* Bottom chrome */}
       <div className="chrome bottom-chrome" style={{ borderTop: "1px solid var(--hairline)",
         gap: "var(--sp-4)" }}>
         <button
@@ -1625,7 +1731,6 @@ export default function App() {
 
         <ProgressBar pct={pct} />
 
-        {/* Keyboard hint */}
         <span className="t-label kbd-hint" style={{ flexShrink: 0, color: "var(--t3)" }}>
           ← → keys
         </span>
@@ -1652,7 +1757,6 @@ export default function App() {
         </button>
       </div>
 
-      {/* Side nav dots with hover labels */}
       <div className="side-dots" style={{
         position: "fixed", right: 14, top: "50%",
         transform: "translateY(-50%)",
