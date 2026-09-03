@@ -66,10 +66,10 @@ body {
   --sp-12: 48px;
   --sp-14: 56px;
 
-  --sidebar-w:   clamp(248px, 24vw, 304px);
-  --slide-px:    clamp(16px, 4.2vw, 56px);
+  --sidebar-w:   clamp(220px, 20vw, 280px);
+  --slide-px:    clamp(14px, 3.4vw, 48px);
   --card-radius: 16px;
-  --card-p:      20px;
+  --card-p:      18px;
   --tag-radius:  5px;
 }
 
@@ -183,21 +183,28 @@ button { font-family: inherit; }
 /* ─────────────────────────────────────────
    LAYOUT UTILITIES
 ───────────────────────────────────────── */
+.slide-split {
+  gap: clamp(12px, 1vw, 18px);
+}
+
 .slide-panel {
   width: var(--sidebar-w);
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  /* Top padding scales with viewport but caps early — content sits in a
-     consistent upper-third zone rather than floating in dead centre on tall screens */
-  padding: clamp(20px, 7vh, 72px) var(--sp-5) clamp(16px, 4vh, 40px) var(--slide-px);
-  gap: clamp(12px, 2vh, 18px);
+  padding: clamp(10px, 2.4vh, 24px) var(--sp-4) clamp(10px, 2vh, 18px) var(--slide-px);
+  gap: clamp(6px, 1.1vh, 12px);
   position: relative;
   z-index: 10;
   height: 100%;
   min-height: 0;
   overflow-y: auto;
+}
+
+.slide-main {
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .slide-col {
@@ -206,11 +213,9 @@ button { font-family: inherit; }
   height: 100%;
   display: flex;
   flex-direction: column;
-  /* Match slide-panel: start from a proportionally bounded top position
-     so content doesn't float in a dead-centre void on tall screens */
   justify-content: flex-start;
-  padding-top: clamp(20px, 7vh, 72px);
-  padding-bottom: clamp(16px, 4vh, 40px);
+  padding-top: clamp(10px, 2.2vh, 18px);
+  padding-bottom: clamp(8px, 1.4vh, 12px);
   overflow: hidden;
 }
 

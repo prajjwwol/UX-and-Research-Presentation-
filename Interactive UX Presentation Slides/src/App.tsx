@@ -242,25 +242,28 @@ function S1({ active }: { active: boolean }) {
 
       <div className="slide-panel">
         {go && <>
-          <SlideTag num="01" label="Foundation" />
-          <h2 className="t-h2 a-up d2">
-            The UX<br /><span className="shimmer">Iceberg</span>
-          </h2>
-          <p className="t-body a-up d3">
-            The polished interface is just the tip. Most of the real work happens where nobody looks —
-            in the structure, the strategy, the dozens of small decisions that make something feel effortless.
-          </p>
-          <blockquote className="a-up d4" style={{
-            paddingLeft: "var(--sp-4)",
-            borderLeft: "2px solid var(--violet)",
-            fontFamily: "var(--ff-display)", fontStyle: "italic",
-            fontSize: "var(--ts-small)", lineHeight: "var(--lh-body)",
-            fontWeight: 300, color: "var(--t2)",
-          }}>
-            "Design is not just what it looks like. Design is how it works."
-            <span className="t-label not-italic block" style={{ marginTop: "var(--sp-2)",
-              color: "var(--t3)", fontStyle: "normal" }}>Steve Jobs</span>
-          </blockquote>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-4)" }}>
+            <SlideTag num="01" label="Foundation" />
+            <h2 className="t-h2 a-up d2" style={{ marginTop: "var(--sp-1)" }}>
+              The UX<br /><span className="shimmer">Iceberg</span>
+            </h2>
+            <p className="t-body a-up d3" style={{ marginTop: "var(--sp-1)" }}>
+              The polished interface is just the tip. Most of the real work happens where nobody looks —
+              in the structure, the strategy, the dozens of small decisions that make something feel effortless.
+            </p>
+            <blockquote className="a-up d4" style={{
+              marginTop: "var(--sp-1)",
+              paddingLeft: "var(--sp-4)",
+              borderLeft: "2px solid var(--violet)",
+              fontFamily: "var(--ff-display)", fontStyle: "italic",
+              fontSize: "var(--ts-small)", lineHeight: "var(--lh-body)",
+              fontWeight: 300, color: "var(--t2)",
+            }}>
+              "Design is not just what it looks like. Design is how it works."
+              <span className="t-label not-italic block" style={{ marginTop: "var(--sp-2)",
+                color: "var(--t3)", fontStyle: "normal" }}>Steve Jobs</span>
+            </blockquote>
+          </div>
         </>}
       </div>
 
@@ -629,11 +632,11 @@ function S3({ active }: { active: boolean }) {
       {/* Phase cards */}
       {go && (
         <div className="phase-cards flex justify-center relative"
-          style={{ gap: "var(--sp-3)", paddingInline: "var(--slide-px)" }}>
+          style={{ gap: "clamp(50px, 1.5vw, 24px)", paddingInline: "var(--slide-px)" }}>
           {showHint && (
             <div className="a-in t-label" style={{
               position: "absolute",
-              top: -26,
+              top: -56,
               right: "var(--slide-px)",
               color: "var(--t3)",
               opacity: 0.9,
@@ -652,6 +655,7 @@ function S3({ active }: { active: boolean }) {
                 className={`touch-target a-up d${i + 3} flex-1 text-left`}
                 style={{
                   maxWidth: 240,
+                  minHeight: 220,
                   background: active
                     ? `linear-gradient(160deg, ${clr}14 0%, var(--bg2) 65%)`
                     : "var(--surface)",
@@ -660,25 +664,30 @@ function S3({ active }: { active: boolean }) {
                   borderBottom: `1px solid ${active ? clr + "28" : isHover ? clr + "40" : "var(--hairline)"}`,
                   borderLeft: `1px solid ${active ? clr + "28" : isHover ? clr + "40" : "var(--hairline)"}`,
                   borderRadius: "var(--card-radius)",
-                  padding: "clamp(8px,1.4vh,14px) var(--sp-4)",
+                  padding: "clamp(12px, 1.8vh, 18px) var(--sp-4)",
                   transition: "all .3s ease", cursor: "pointer",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
                 }}>
-                <div className="flex items-center" style={{ gap: "var(--sp-2)", marginBottom: "var(--sp-3)" }}>
-                  <div style={{
-                    width: 8, height: 8, borderRadius: "50%", background: clr,
-                    flexShrink: 0,
-                    boxShadow: active ? `0 0 8px ${clr}80` : "none",
-                    transition: "box-shadow .3s",
-                  }} />
-                  <p className="t-label" style={{ color: clr }}>{p.label}</p>
+                <div>
+                  <div className="flex items-center" style={{ gap: "var(--sp-2)", marginBottom: "var(--sp-3)" }}>
+                    <div style={{
+                      width: 8, height: 8, borderRadius: "50%", background: clr,
+                      flexShrink: 0,
+                      boxShadow: active ? `0 0 8px ${clr}80` : "none",
+                      transition: "box-shadow .3s",
+                    }} />
+                    <p className="t-label" style={{ color: clr }}>{p.label}</p>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column",
+                    gap: "var(--sp-1)", marginBottom: "var(--sp-3)" }}>
+                    {p.acts.map(a => (
+                      <p key={a} className="t-small" style={{ color: "var(--t2)" }}>· {a}</p>
+                    ))}
+                  </div>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column",
-                  gap: "var(--sp-1)", marginBottom: "var(--sp-3)" }}>
-                  {p.acts.map(a => (
-                    <p key={a} className="t-small" style={{ color: "var(--t2)" }}>· {a}</p>
-                  ))}
-                </div>
-                <div style={{ paddingTop: "var(--sp-2)", borderTop: `1px solid ${clr}20` }}>
+                <div style={{ paddingTop: "var(--sp-2)", borderTop: `1px solid ${clr}20`, marginTop: "var(--sp-2)" }}>
                   <p className="t-label" style={{ color: clr, marginBottom: "var(--sp-1)", opacity: .7 }}>
                     Output
                   </p>
@@ -751,26 +760,29 @@ function S4({ active }: { active: boolean }) {
       style={{ background: "var(--bg)" }}>
       <Glow x="72%" y="40%" r={360} color="rgba(139,92,246,.13)" />
 
-      {/* Sidebar */}
-      <div className="slide-panel">
+      <div className="slide-panel" style={{ width: "clamp(220px, 18vw, 280px)" }}>
         {go && <>
           <SlideTag num="04" label="Craft" />
-          <h2 className="t-h2 a-up d2">Interview<br /><span className="shimmer">Mastery</span></h2>
+          <h2 className="t-h2 a-up d2" style={{ fontSize: "clamp(1.8rem,2.5vw,2.7rem)" }}>Interview<br /><span className="shimmer">Mastery</span></h2>
           <nav style={{ display: "flex", flexDirection: "column", gap: "var(--sp-2)" }}>
             {tabs.map((tb, i) => (
               <button key={i} onClick={() => setTab(i)}
-                className={`touch-target a-left d${i + 3} text-left`}
+                className="touch-target a-left text-left"
                 style={{
-                  padding: "var(--sp-3) var(--sp-4)",
-                  borderRadius: 10,
-                  background: tab === i ? tb.clr + "18" : "transparent",
+                  padding: "clamp(14px, 1.5vh, 20px) clamp(12px, 1vw, 16px)",
+                  minHeight: 96,
+                  borderRadius: 12,
+                  background: tab === i ? tb.clr + "18" : "rgba(255,255,255,.02)",
                   borderTop: `1px solid ${tab === i ? tb.clr + "55" : "var(--hairline)"}`,
                   borderRight: `1px solid ${tab === i ? tb.clr + "55" : "var(--hairline)"}`,
                   borderBottom: `1px solid ${tab === i ? tb.clr + "55" : "var(--hairline)"}`,
                   borderLeft: `3px solid ${tab === i ? tb.clr : "transparent"}`,
+                  boxShadow: tab === i ? `inset 0 1px 0 ${tb.clr}22` : "none",
                   cursor: "pointer", transition: "all .2s ease",
+                  display: "flex",
+                  alignItems: "center",
                 }}>
-                <p style={{ fontSize: "var(--ts-small)", fontWeight: tab === i ? 600 : 400,
+                <p style={{ fontSize: "clamp(0.96rem, 0.94vw, 1.08rem)", fontWeight: tab === i ? 700 : 600,
                   color: tab === i ? "var(--t1)" : "var(--t2)", transition: "color .2s" }}>
                   {tb.label}
                 </p>
@@ -780,52 +792,70 @@ function S4({ active }: { active: boolean }) {
         </>}
       </div>
 
-      {/* Content */}
-      <div className="slide-main relative z-10 flex-1 flex flex-col justify-center overflow-hidden"
-        style={{ padding: "clamp(16px,4vh,48px) var(--slide-px) clamp(16px,4vh,48px) var(--sp-6)" }}>
+      <div className="slide-main relative z-10 flex-1 flex items-center justify-center overflow-hidden"
+        style={{ padding: "clamp(12px,2.2vh,24px) var(--slide-px) clamp(12px,2.2vh,24px) var(--sp-6)" }}>
         {go && (
-          <div key={tab} className="a-up w-full" style={{ width: "100%", maxWidth: 760, minWidth: 0 }}>
+          <div key={tab} className="a-up w-full" style={{ width: "100%", maxWidth: 900, minWidth: 0, margin: "0 auto" }}>
 
-            <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--sp-3)",
-              marginBottom: "var(--sp-5)", paddingBottom: "var(--sp-4)",
-              borderBottom: "1px solid var(--hairline)" }}>
-              <div style={{ width: 3, minHeight: 44, borderRadius: 2,
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "center", gap: "var(--sp-3)",
+              marginBottom: "var(--sp-4)", paddingBottom: "var(--sp-3)",
+              borderBottom: "1px solid var(--hairline)", textAlign: "center" }}>
+              <div style={{ width: 3, minHeight: 52, borderRadius: 2,
                 background: t.clr, flexShrink: 0, marginTop: 2 }} />
-              <div>
+              <div style={{ maxWidth: 760 }}>
                 <p className="t-label" style={{ color: t.clr, marginBottom: "var(--sp-1)" }}>
                   {t.label}
                 </p>
                 {tab === 0 && (
-                  <p className="t-label" style={{ color: "var(--t3)", marginBottom: "var(--sp-2)" }}>
-                    Tell · Elaborate · Describe · Why
-                  </p>
+                  <div style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    padding: "clamp(12px, 2vh, 18px) clamp(18px, 2vw, 24px)",
+                    margin: "var(--sp-2) auto var(--sp-3)",
+                    borderRadius: "14px",
+                    background: "rgba(139,92,246,.08)",
+                    border: "1px solid rgba(139,92,246,.22)",
+                    textAlign: "center",
+                    maxWidth: 460,
+                  }}>
+                    <p className="t-label" style={{
+                      color: "var(--violet-lt)",
+                      fontSize: "0.82rem",
+                      letterSpacing: "0.18em",
+                      margin: 0,
+                    }}>
+                      Tell · Elaborate · Describe · Why
+                    </p>
+                  </div>
                 )}
-                <p className="t-body" style={{ color: "var(--t2)", lineHeight: "var(--lh-tight)" }}>
+                <p className="t-body" style={{ color: "var(--t2)", lineHeight: "var(--lh-tight)", fontSize: "clamp(1rem, 1.15vw, 1.2rem)", margin: "0 auto" }}>
                   {t.intro}
                 </p>
               </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.65fr) minmax(200px, 0.95fr)", gap: "var(--sp-4)", alignItems: "start" }}>
-              <div style={{ display: "flex", flexDirection: "column" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 2fr) minmax(260px, 1fr)", gap: "var(--sp-4)", alignItems: "stretch" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--sp-2)" }}>
                 {t.rows.map((row, i) => (
                   <div key={`${tab}-${i}`}
                     style={{
                       display: "flex", alignItems: "flex-start",
                       gap: "var(--sp-4)",
-                      paddingBlock: "var(--sp-4)",
-                      borderBottom: i < t.rows.length - 1
-                        ? "1px solid var(--hairline)" : "none",
+                      padding: "var(--sp-3) var(--sp-3)",
+                      borderRadius: "var(--card-radius)",
+                      background: i % 2 === 0 ? "rgba(255,255,255,.02)" : "transparent",
+                      border: `1px solid ${i % 2 === 0 ? t.clr + "14" : "transparent"}`,
                       animation: `fadeUp .42s cubic-bezier(.22,1,.36,1) ${.04 + i * .07}s both`,
                     }}>
 
                     <div style={{
-                      width: 36, flexShrink: 0, paddingTop: 1,
+                      width: 42, flexShrink: 0, paddingTop: 1,
                       display: "flex", justifyContent: "center",
                     }}>
                       <span style={{
                         fontFamily: "var(--ff-display)", fontWeight: 900,
-                        fontSize: "1.5rem", lineHeight: 1,
+                        fontSize: "1.7rem", lineHeight: 1,
                         color: t.clr,
                       }}>{row.letter}</span>
                     </div>
@@ -840,8 +870,8 @@ function S4({ active }: { active: boolean }) {
                       <div style={{ display: "flex", alignItems: "baseline",
                         justifyContent: "space-between", gap: "var(--sp-4)",
                         marginBottom: "var(--sp-2)" }}>
-                        <p style={{ fontFamily: "var(--ff-body)", fontWeight: 600,
-                          fontSize: "var(--ts-body)", color: "var(--t1)", lineHeight: 1.3 }}>
+                        <p style={{ fontFamily: "var(--ff-body)", fontWeight: 700,
+                          fontSize: "clamp(1rem, 1.05vw, 1.12rem)", color: "var(--t1)", lineHeight: 1.3 }}>
                           {row.word}
                         </p>
                         <span style={{
@@ -851,7 +881,7 @@ function S4({ active }: { active: boolean }) {
                         }}>{row.note}</span>
                       </div>
                       <p style={{ fontFamily: "var(--ff-display)", fontStyle: "italic",
-                        fontSize: "var(--ts-small)", color: "var(--t3)",
+                        fontSize: "clamp(0.94rem, 0.95vw, 1.05rem)", color: "var(--t3)",
                         lineHeight: "var(--lh-tight)" }}>
                         {row.eg}
                       </p>
@@ -865,13 +895,13 @@ function S4({ active }: { active: boolean }) {
                 border: `1px solid ${t.clr}22`,
                 borderRadius: "var(--card-radius)",
                 padding: "var(--sp-4)",
-                minHeight: "100%",
-                alignSelf: "stretch",
+                display: "flex", flexDirection: "column", justifyContent: "center",
+                textAlign: "center",
               }}>
                 <p className="t-label" style={{ color: t.clr, marginBottom: "var(--sp-3)" }}>
                   Why this matters
                 </p>
-                <p className="t-body" style={{ color: "var(--t2)", lineHeight: "var(--lh-tight)" }}>
+                <p className="t-body" style={{ color: "var(--t2)", lineHeight: "var(--lh-tight)", fontSize: "clamp(1rem, 1.05vw, 1.15rem)" }}>
                   {tab === 0 && "The best interview questions feel conversational, not interrogative. Ask one thing, then let the story unfold."}
                   {tab === 1 && "Depth matters more than volume. The fifth why often reveals the real problem hidden behind the first answer."}
                   {tab === 2 && "Great interviews are safe, curious, and neutral. The moment you lead, the signal begins to bend."}
@@ -1129,28 +1159,33 @@ function S7({ active }: { active: boolean }) {
       style={{ background: "var(--bg)" }}>
       <Glow x="76%" y="50%" r={400} color="rgba(139,92,246,.13)" />
 
-      {/* Panel — 2-col nav grid so 10 items always fit */}
-      <div className="slide-panel">
+      <div className="slide-panel" style={{ width: "clamp(400px, 18vw, 400px)" }}>
         {go && <>
           <SlideTag num="07" label="Heuristics" />
-          <h2 className="t-h2 a-up d2" style={{ fontSize: "clamp(1.5rem,2.4vw,2.2rem)" }}>
+          <h2 className="t-h2 a-up d2" style={{ fontSize: "clamp(1.8rem,2.6vw,2.7rem)" }}>
             Nielsen's 10<br /><span className="shimmer">Heuristics</span>
           </h2>
-          {/* 2-column grid: 5 rows × 2 cols instead of 10 rows × 1 col */}
           <nav className="heuristics-nav" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--sp-2)" }}>
             {heuristics.map((hr, i) => (
               <button key={i} onClick={() => setSel(i)}
                 className="touch-target a-up text-left"
                 style={{
                   animationDelay: `${0.04 + i * 0.04}s`,
-                  padding: "var(--sp-2) var(--sp-3)",
-                  borderRadius: 10,
-                  background: sel === i ? `${hr.c}18` : "var(--surface)",
+                  padding: "clamp(14px, 1.5vh, 20px) clamp(12px, 1.1vw, 16px)",
+                  minHeight: 96,
+                  borderRadius: 12,
+                  background: sel === i ? `${hr.c}18` : "rgba(255,255,255,.02)",
                   border: `1px solid ${sel === i ? hr.c + "55" : "var(--hairline)"}`,
-                  cursor: "pointer", transition: "all .2s",
+                  boxShadow: sel === i ? `inset 0 1px 0 ${hr.c}20` : "none",
+                  cursor: "pointer", transition: "all .2s ease",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  textAlign: "left",
+                  transform: sel === i ? "translateY(-1px)" : "none",
                 }}>
-                <p className="t-label" style={{ color: hr.c, marginBottom: "var(--sp-1)" }}>{hr.n}</p>
-                <p style={{ fontSize: 11, fontWeight: sel === i ? 600 : 400, lineHeight: 1.35,
+                <p className="t-label" style={{ color: hr.c, marginBottom: "var(--sp-1)", fontSize: "0.85rem" }}>{hr.n}</p>
+                <p style={{ fontSize: "clamp(0.96rem, 0.92vw, 1.12rem)", fontWeight: sel === i ? 700 : 600, lineHeight: 1.35,
                   color: sel === i ? "var(--t1)" : "var(--t2)" }}>
                   {hr.t}
                 </p>
@@ -1160,36 +1195,59 @@ function S7({ active }: { active: boolean }) {
         </>}
       </div>
 
-      {/* Detail */}
-      <div className="slide-main relative z-10 flex-1 flex items-start"
-        style={{ paddingInline: "var(--sp-6) var(--slide-px)",
-          paddingTop: "clamp(20px, 7vh, 72px)", minHeight: 0, overflowY: "auto" }}>
+      <div className="slide-main relative z-10 flex-1 flex"
+        style={{ paddingInline: "var(--sp-5) var(--slide-px)",
+          paddingTop: "clamp(10px, 2vh, 22px)", minHeight: 0, overflowY: "auto",
+          alignItems: "center", justifyContent: "center" }}>
         {go && (
-          <div key={sel} className="a-up" style={{ width: "100%", maxWidth: 700 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.45fr) minmax(220px, 0.95fr)", gap: "var(--sp-5)", alignItems: "start" }}>
-              <div className="flex items-start" style={{ gap: "var(--sp-5)" }}>
-                <span style={{ fontFamily: "var(--ff-display)", fontWeight: 900,
-                  fontSize: "5.5rem", color: h.c + "28", lineHeight: 1, flexShrink: 0 }}>
-                  {h.n}
-                </span>
-                <div>
+          <div key={sel} className="a-up" style={{ width: "100%", maxWidth: 930, margin: "0 auto" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 2fr) minmax(280px, 1.15fr)", gap: "var(--sp-4)", alignItems: "stretch" }}>
+              <div style={{
+                background: `${h.c}0e`,
+                border: `1px solid ${h.c}22`,
+                borderRadius: "var(--card-radius)",
+                padding: "clamp(30px, 3.2vh, 44px)",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: "var(--sp-5)",
+                minHeight: 320,
+                textAlign: "center",
+                flexDirection: "column",
+              }}>
+                <div style={{
+                  width: 168,
+                  minWidth: 168,
+                  height: 168,
+                  borderRadius: "50%",
+                  background: `${h.c}14`,
+                  border: `1px solid ${h.c}33`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: `inset 0 0 22px ${h.c}18`,
+                  marginBottom: "var(--sp-3)",
+                }}>
+                  <span style={{ fontFamily: "var(--ff-display)", fontWeight: 900,
+                    fontSize: "4.8rem", color: h.c, lineHeight: 1 }}>
+                    {h.n}
+                  </span>
+                </div>
+                <div style={{ maxWidth: 630, margin: "0 auto" }}>
                   <h3 style={{ fontFamily: "var(--ff-display)", fontWeight: 700,
-                    fontSize: "1.8rem", color: h.c, lineHeight: "var(--lh-heading)",
-                    marginBottom: "var(--sp-4)" }}>
+                    fontSize: "clamp(2.2rem, 3vw, 3.2rem)", color: h.c, lineHeight: "var(--lh-heading)",
+                    marginBottom: "var(--sp-3)" }}>
                     {h.t}
                   </h3>
-                  <p className="t-body" style={{ color: "var(--t2)", lineHeight: "var(--lh-body)" }}>
+                  <p style={{ fontFamily: "var(--ff-body)", fontSize: "clamp(1.08rem, 1.25vw, 1.35rem)",
+                    color: "var(--t2)", lineHeight: "var(--lh-body)" }}>
                     {h.body}
                   </p>
                 </div>
               </div>
 
-              <div style={{ background: `${h.c}0e`, border: `1px solid ${h.c}2e`,
-                borderRadius: "var(--card-radius)", padding: "var(--card-p)", minHeight: "100%" }}>
-                <p className="t-label" style={{ color: h.c, marginBottom: "var(--sp-3)" }}>
+              <div style={{ background: "rgba(255,255,255,.02)", border: "1px solid var(--hairline)",
+                borderRadius: "var(--card-radius)", padding: "var(--card-p)", display: "flex", flexDirection: "column", justifyContent: "center", minHeight: 320, textAlign: "center" }}>
+                <p className="t-label" style={{ color: h.c, marginBottom: "var(--sp-3)", fontSize: "0.84rem" }}>
                   In practice
                 </p>
-                <p className="t-body" style={{ color: "var(--t2)", lineHeight: "var(--lh-body)" }}>
+                <p style={{ fontFamily: "var(--ff-body)", fontSize: "clamp(1.04rem, 1.08vw, 1.2rem)",
+                  color: "var(--t2)", lineHeight: "1.7" }}>
                   {h.eg}
                 </p>
               </div>
@@ -1320,7 +1378,7 @@ function S8({ active }: { active: boolean }) {
 
       {/* Detail panel — lives below chart, never overlaps title */}
       {go && (
-        <div style={{ minHeight: 82, marginTop: "clamp(10px,1.8vh,20px)",
+        <div style={{ minHeight: 82, marginTop: "clamp(100px,1.8vh,20px)",
           paddingInline: "var(--slide-px)", display: "flex",
           alignItems: "center", justifyContent: "center" }}>
 
@@ -1419,10 +1477,10 @@ function S9({ active }: { active: boolean }) {
       <Glow x="86%" y="68%" r={220} color="rgba(20,184,166,.07)" />
 
       <div className="cta-layout relative z-10 flex items-center"
-        style={{ gap: "var(--sp-10)", paddingInline: "var(--slide-px)",
-          width: "100%", maxWidth: 960, maxHeight: "100%" }}>
+        style={{ gap: "var(--sp-6)", paddingInline: "var(--slide-px)",
+          width: "100%", maxWidth: 920, maxHeight: "100%" }}>
 
-        <div className="cta-sidebar" style={{ width: "var(--sidebar-w)", flexShrink: 0 }}>
+        <div className="cta-sidebar" style={{ width: "min(var(--sidebar-w), 26vw)", flexShrink: 0 }}>
           {go && <>
             <div className="a-in d1" style={{ marginBottom: "var(--sp-6)" }}>
               <SlideTag num="09" label="Action" color="var(--amber)" />
@@ -1460,8 +1518,8 @@ function S9({ active }: { active: boolean }) {
           </>}
         </div>
 
-        <div className="cta-list flex-1 flex flex-col" style={{ gap: "var(--sp-3)",
-          overflowY: "auto", maxHeight: "calc(100dvh - 120px)" }}>
+        <div className="cta-list flex-1 flex flex-col" style={{ gap: "var(--sp-2)",
+          overflowY: "auto", maxHeight: "calc(100dvh - 140px)" }}>
           {go && <>
             {done.size === 0 && (
               <p className="t-label a-in" style={{ color: "var(--t3)", marginBottom: "var(--sp-2)",
