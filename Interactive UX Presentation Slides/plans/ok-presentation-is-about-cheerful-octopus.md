@@ -86,6 +86,7 @@ The tab is labeled "TEDW Framework" but the acronym is never spelled out. Each r
 In `goTo`, reduce the `setTimeout` from `320` → `180`.
 In `useEnter` default `delay` param: change `60` → `20`.
 
+{% raw %}
 ### Change 2: Exit animation (App.tsx + index.css)
 Add `prevSlide` ref to App. During transition, render both:
 ```tsx
@@ -203,3 +204,4 @@ Add a visually-hidden element in App:
 6. Navigate to S6, watch counters; navigate away and back — counters should not replay (Change 7)
 7. On S9, before checking any item — "Check off what you'll try →" label should be visible (Change 8)
 8. Screen reader test: navigate slides with arrow keys and verify VoiceOver/NVDA announces slide title (Change 11)
+{% endraw %}
