@@ -1,20 +1,17 @@
 import { defineConfig, type HtmlTagDescriptor, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 
-const siteConfiguration = loadSiteConfiguration()
+import siteConfiguration from './.figma/make/site.json'
 
 // Vite config — https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   // .figma/make/deploy-preview passes `--mode development` for cached-preview builds.
   const emitSourcemaps = mode === 'development'
-  const githubRepositoryName = process.env.GITHUB_REPOSITORY?.split('/')[1]
-  const githubPagesBase = githubRepositoryName ? `/${githubRepositoryName}/` : '/'
 
   return {
-    base: process.env.FIGMA_PUBLIC_URL ? `${process.env.FIGMA_PUBLIC_URL}/` : githubPagesBase,
+    base: process.env.FIGMA_PUBLIC_URL ? `${process.env.FIGMA_PUBLIC_URL}/` : '/',
     build: {
       sourcemap: emitSourcemaps ? 'inline' : false,
       minify: !emitSourcemaps,
@@ -33,13 +30,13 @@ export default defineConfig(({ mode }) => {
       },
     },
     server: {
-      host: '0.0.0.0',
+      host: process.env.FIGMA_DEV_SERVER_HOST || '0.0.0.0',
       port: parseInt(process.env.PORT || '8443'),
       strictPort: true,
       watch: { ignored: ['**/.figma/**'] },
     },
     preview: {
-      host: '0.0.0.0',
+      host: process.env.FIGMA_DEV_SERVER_HOST || '0.0.0.0',
       port: parseInt(process.env.PORT || '8443'),
     },
   }
@@ -72,17 +69,6 @@ type FigmaSiteConfiguration = {
   }
 }
 
-function loadSiteConfiguration(): FigmaSiteConfiguration {
-  const siteConfigPath = path.resolve(__dirname, './.figma/make/site.json')
-  if (!existsSync(siteConfigPath)) return {}
-
-  try {
-    return JSON.parse(readFileSync(siteConfigPath, 'utf-8')) as FigmaSiteConfiguration
-  } catch {
-    return {}
-  }
-}
-
 /** Applies /.figma/make/site.json to the generated document shell. */
 function figmaSiteConfiguration(config: FigmaSiteConfiguration): Plugin {
   function sanitizeHtmlValue(value: string | undefined): string {
@@ -95,7 +81,7 @@ function figmaSiteConfiguration(config: FigmaSiteConfiguration): Plugin {
     return html.replace(`<!-- ${slotName} -->`, content)
   }
 
-  const title = config.title ?? "UX Research"
+  const title = config.title ?? "Figma Make App"
   const description = config.description ?? ''
   const favicon = config.icons?.icon ?? ''
   const socialImage = config.openGraph?.image ?? ''

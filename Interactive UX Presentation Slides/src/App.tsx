@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 // ─── Primitives ───────────────────────────────────────────────────────────────
 
@@ -74,9 +74,9 @@ function AnimNum({ to, suffix = "", duration = 1300, delay = 0, active }: {
 /* Bottom progress bar */
 function ProgressBar({ pct }: { pct: number }) {
   return (
-    <div style={{ flex: 1, height: 2, background: "rgba(255,255,255,.06)", borderRadius: 1 }}>
+    <div className="progress-track">
       <div style={{
-        height: "100%", borderRadius: 1,
+        height: "100%", borderRadius: 2,
         background: "linear-gradient(90deg, var(--violet), var(--pink), var(--teal))",
         width: `${pct}%`,
         transition: "width .45s cubic-bezier(.22,1,.36,1)",
@@ -372,12 +372,14 @@ function S2({ active }: { active: boolean }) {
       </div>
 
       {/* 2×2 grid */}
-      <div className="slide-main relative z-10 flex-1 flex items-center justify-center">
+      <div className="slide-main relative z-10 flex-1 flex items-center justify-center"
+        style={{ padding: "clamp(16px, 3.5vh, 40px) var(--slide-px)" }}>
         {go && (
-          <div className="matrix-wrap a-scale d3">
+          <div className="matrix-wrap a-scale d3" style={{ width: "100%", maxWidth: 680,
+            height: "clamp(340px, 72vh, 560px)", display: "flex", flexDirection: "column" }}>
             {/* Column headers */}
             <div style={{ display: "grid", gridTemplateColumns: "minmax(20px, 28px) 1fr 1fr",
-              marginBottom: "var(--sp-3)" }}>
+              marginBottom: "var(--sp-3)", flexShrink: 0 }}>
               <div />
               {["Qualitative", "Quantitative"].map(l => (
                 <p key={l} className="t-label" style={{ textAlign: "center", color: "var(--t3)" }}>{l}</p>
@@ -385,7 +387,7 @@ function S2({ active }: { active: boolean }) {
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "minmax(20px, 28px) 1fr 1fr",
-              gridTemplateRows: "1fr 1fr", gap: "var(--sp-3)" }}>
+              gridTemplateRows: "1fr 1fr", gap: "var(--sp-3)", flex: 1, minHeight: 0 }}>
               {/* Row label — Attitudinal */}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center",
                 gridRow: "1 / 2" }}>
@@ -408,7 +410,7 @@ function S2({ active }: { active: boolean }) {
                   onMouseEnter={() => setHov2(c.id)}
                   onMouseLeave={() => setHov2(null)}
                   style={{
-                    width: "100%", minHeight: "clamp(136px, 22vh, 168px)",
+                    width: "100%", height: "100%",
                     background: sel === c.id ? `color-mix(in srgb, ${c.color} 12%, transparent)` : "var(--surface)",
                     border: `1px solid ${sel === c.id ? `${c.color}60` : hov2 === c.id ? `${c.color}38` : "var(--hairline)"}`,
                     borderRadius: "var(--card-radius)",
@@ -1083,8 +1085,9 @@ function S7({ active }: { active: boolean }) {
       </div>
 
       {/* Detail */}
-      <div className="slide-main relative z-10 flex-1 flex items-center"
-        style={{ paddingInline: "var(--sp-6) var(--slide-px)", minHeight: 0, overflow: "hidden" }}>
+      <div className="slide-main relative z-10 flex-1 flex items-start"
+        style={{ paddingInline: "var(--sp-6) var(--slide-px)",
+          paddingTop: "clamp(20px, 7vh, 72px)", minHeight: 0, overflowY: "auto" }}>
         {go && (
           <div key={sel} className="a-up" style={{ maxWidth: 480 }}>
             <div className="flex items-start" style={{ gap: "var(--sp-5)", marginBottom: "var(--sp-6)" }}>
@@ -1438,16 +1441,99 @@ const SLIDES = [
   { id: 9, label: "Action",          C: S9 },
 ];
 
+// ─── Side-dot with hover label ────────────────────────────────────────────────
+function SideDot({ active, label, onClick }: { active: boolean; label: string; onClick: () => void }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <div style={{ position: "relative", display: "flex", alignItems: "center",
+      justifyContent: "flex-end" }}>
+      {/* Tooltip label */}
+      <span style={{
+        position: "absolute", right: 18,
+        fontFamily: "var(--ff-mono)", fontSize: 10,
+        letterSpacing: "0.1em", textTransform: "uppercase",
+        color: "var(--t2)",
+        background: "rgba(7,7,15,.9)", backdropFilter: "blur(8px)",
+        border: "1px solid var(--hairline)",
+        padding: "3px 7px", borderRadius: 4, whiteSpace: "nowrap",
+        pointerEvents: "none",
+        opacity: hov ? 1 : 0,
+        transform: hov ? "translateX(0)" : "translateX(6px)",
+        transition: "opacity .18s, transform .18s",
+      }}>{label}</span>
+      <button
+        onClick={onClick}
+        onMouseEnter={() => setHov(true)}
+        onMouseLeave={() => setHov(false)}
+        aria-label={label}
+        style={{
+          width: active ? 8 : 5, height: active ? 8 : 5,
+          borderRadius: "50%",
+          background: active ? "var(--violet)" : "rgba(255,255,255,.18)",
+          border: active ? "2px solid var(--violet-lt)" : "none",
+          cursor: "pointer",
+          transition: "all .28s cubic-bezier(.22,1,.36,1)",
+          outline: "none",
+        }} />
+    </div>
+  );
+}
+
+// ─── Chip with tooltip ────────────────────────────────────────────────────────
+function SlideChip({ active, num, label, onClick }: {
+  active: boolean; num: number; label: string; onClick: () => void;
+}) {
+  const [hov, setHov] = useState(false);
+  return (
+    <div style={{ position: "relative" }}>
+      {/* Tooltip */}
+      <span style={{
+        position: "absolute", top: "calc(100% + 6px)", left: "50%",
+        transform: hov ? "translateX(-50%) translateY(0)" : "translateX(-50%) translateY(-4px)",
+        fontFamily: "var(--ff-mono)", fontSize: 9,
+        letterSpacing: "0.1em", textTransform: "uppercase",
+        color: "var(--t2)",
+        background: "rgba(7,7,15,.92)", backdropFilter: "blur(8px)",
+        border: "1px solid var(--hairline)",
+        padding: "3px 7px", borderRadius: 4, whiteSpace: "nowrap",
+        pointerEvents: "none", zIndex: 80,
+        opacity: hov ? 1 : 0,
+        transition: "opacity .16s, transform .16s",
+      }}>{label}</span>
+      <button
+        onClick={onClick}
+        onMouseEnter={() => setHov(true)}
+        onMouseLeave={() => setHov(false)}
+        aria-label={`Go to slide ${num + 1}: ${label}`}
+        className="touch-target"
+        style={{
+          padding: "3px 8px", borderRadius: 5,
+          background: active ? "rgba(139,92,246,.22)" : "transparent",
+          border: `1px solid ${active ? "rgba(139,92,246,.45)" : "transparent"}`,
+          fontFamily: "var(--ff-mono)", fontSize: 11,
+          color: active ? "var(--violet-lt)" : "var(--t3)",
+          cursor: "pointer", transition: "all .18s",
+          outline: "none",
+        }}>
+        {String(num).padStart(2, "0")}
+      </button>
+    </div>
+  );
+}
+
 // ─── App shell ────────────────────────────────────────────────────────────────
 export default function App() {
   const [cur, setCur] = useState(0);
-  const [fading, setFading] = useState(false);
+  const [dir, setDir] = useState<1 | -1>(1);
+  const [transitioning, setTransitioning] = useState(false);
+  const touchX = useRef<number | null>(null);
 
   const goTo = useCallback((i: number) => {
-    if (i === cur || fading || i < 0 || i >= SLIDES.length) return;
-    setFading(true);
-    setTimeout(() => { setCur(i); setFading(false); }, 250);
-  }, [cur, fading]);
+    if (i === cur || transitioning || i < 0 || i >= SLIDES.length) return;
+    setDir(i > cur ? 1 : -1);
+    setTransitioning(true);
+    setTimeout(() => { setCur(i); setTransitioning(false); }, 320);
+  }, [cur, transitioning]);
 
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
@@ -1465,87 +1551,108 @@ export default function App() {
 
   const { C } = SLIDES[cur];
   const pct = ((cur + 1) / SLIDES.length) * 100;
+  const isFirst = cur === 0;
+  const isLast = cur === SLIDES.length - 1;
 
   return (
-    <div className="app-shell" style={{ width: "100%", height: "100%", display: "flex",
-      flexDirection: "column", background: "var(--bg)" }}>
-
+    <div
+      className="app-shell"
+      style={{ width: "100%", height: "100%", display: "flex",
+        flexDirection: "column", background: "var(--bg)" }}
+      onTouchStart={e => { touchX.current = e.touches[0].clientX; }}
+      onTouchEnd={e => {
+        if (touchX.current === null) return;
+        const dx = e.changedTouches[0].clientX - touchX.current;
+        touchX.current = null;
+        if (Math.abs(dx) < 48) return;
+        if (dx < 0) goTo(cur + 1);
+        else goTo(cur - 1);
+      }}
+    >
       {/* Top chrome */}
       <div className="chrome" style={{ borderBottom: "1px solid var(--hairline)" }}>
         <span className="t-label" style={{ flexShrink: 0 }}>
           UX & CUSTOMER RESEARCH
         </span>
 
-        {/* Slide chips */}
+        {/* Slide chips with tooltips */}
         <div className="top-chips" style={{ display: "flex", gap: "var(--sp-1)", flex: 1,
           justifyContent: "center" }}>
           {SLIDES.map((s, i) => (
-            <button key={i} onClick={() => goTo(i)} title={s.label}
-              className="touch-target"
-              style={{
-                padding: "3px 8px", borderRadius: 5,
-                background: i === cur ? "rgba(139,92,246,.22)" : "transparent",
-                border: `1px solid ${i === cur ? "rgba(139,92,246,.45)" : "transparent"}`,
-                fontFamily: "var(--ff-mono)", fontSize: 11,
-                color: i === cur ? "var(--violet-lt)" : "var(--t3)",
-                cursor: "pointer", transition: "all .18s",
-              }}>
-              {String(i).padStart(2, "0")}
-            </button>
+            <SlideChip key={i} active={i === cur} num={i} label={s.label}
+              onClick={() => goTo(i)} />
           ))}
         </div>
 
-        <span className="t-label" style={{ flexShrink: 0, color: "var(--t3)" }}>
+        <span className="t-label" style={{ flexShrink: 0, color: "var(--violet-lt)",
+          fontWeight: 600 }}>
           {SLIDES[cur].label}
         </span>
       </div>
 
       {/* Slide canvas */}
       <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
-        <div key={cur} style={{
-          position: "absolute", inset: 0,
-          opacity: fading ? 0 : 1,
-          transition: "opacity .25s ease",
-        }}>
-          <C active={!fading} />
+        <div
+          key={cur}
+          style={{
+            position: "absolute", inset: 0,
+            animation: `slideEnter${dir > 0 ? "Right" : "Left"} .34s cubic-bezier(.22,1,.36,1) both`,
+          }}
+        >
+          <C active={!transitioning} />
         </div>
       </div>
 
       {/* Bottom chrome */}
       <div className="chrome bottom-chrome" style={{ borderTop: "1px solid var(--hairline)",
         gap: "var(--sp-4)" }}>
-        <button onClick={() => goTo(cur - 1)} disabled={cur === 0}
-          className="touch-target"
+        <button
+          onClick={() => goTo(cur - 1)}
+          disabled={isFirst}
+          aria-label="Previous slide"
+          className="touch-target nav-btn"
           style={{
-            padding: "6px 18px", borderRadius: 8,
+            padding: "6px 16px", borderRadius: 8,
             fontFamily: "var(--ff-body)", fontSize: "var(--ts-small)",
-            background: cur === 0 ? "transparent" : "var(--surface2)",
-            border: `1px solid ${cur === 0 ? "transparent" : "var(--hairline)"}`,
-            color: cur === 0 ? "var(--t3)" : "var(--t2)",
-            cursor: cur === 0 ? "not-allowed" : "pointer",
+            background: isFirst ? "transparent" : "var(--surface2)",
+            border: `1px solid ${isFirst ? "rgba(255,255,255,.06)" : "var(--hairline)"}`,
+            color: isFirst ? "rgba(255,255,255,.2)" : "var(--t2)",
+            cursor: isFirst ? "not-allowed" : "pointer",
             transition: "all .18s", flexShrink: 0,
-          }}>← Prev</button>
+          }}>
+          ← Prev
+        </button>
 
         <ProgressBar pct={pct} />
+
+        {/* Keyboard hint */}
+        <span className="t-label kbd-hint" style={{ flexShrink: 0, color: "var(--t3)" }}>
+          ← → keys
+        </span>
 
         <span className="t-label" style={{ flexShrink: 0 }}>
           {cur + 1} / {SLIDES.length}
         </span>
 
-        <button onClick={() => goTo(cur + 1)} disabled={cur === SLIDES.length - 1}
-          className="touch-target"
+        <button
+          onClick={() => goTo(cur + 1)}
+          disabled={isLast}
+          aria-label="Next slide"
+          className="touch-target nav-btn"
           style={{
-            padding: "6px 18px", borderRadius: 8,
+            padding: "6px 16px", borderRadius: 8,
             fontFamily: "var(--ff-body)", fontSize: "var(--ts-small)",
-            background: cur === SLIDES.length - 1 ? "transparent" : "var(--violet)",
-            border: `1px solid ${cur === SLIDES.length - 1 ? "transparent" : "var(--violet)"}`,
-            color: cur === SLIDES.length - 1 ? "var(--t3)" : "#fff",
-            cursor: cur === SLIDES.length - 1 ? "not-allowed" : "pointer",
+            background: isLast ? "transparent" : "var(--violet)",
+            border: `1px solid ${isLast ? "rgba(255,255,255,.06)" : "var(--violet)"}`,
+            color: isLast ? "rgba(255,255,255,.2)" : "#fff",
+            cursor: isLast ? "not-allowed" : "pointer",
             transition: "all .18s", flexShrink: 0,
-          }}>Next →</button>
+          }}>
+          Next →
+        </button>
       </div>
 
-      {/* Side nav dots */}
+      {/* Side nav dots with hover labels */}
       <div className="side-dots" style={{
         position: "fixed", right: 14, top: "50%",
         transform: "translateY(-50%)",
@@ -1553,16 +1660,7 @@ export default function App() {
         gap: "var(--sp-2)", zIndex: 60,
       }}>
         {SLIDES.map((s, i) => (
-          <button key={i} onClick={() => goTo(i)} title={s.label}
-            className="touch-target"
-            style={{
-              width: i === cur ? 8 : 5, height: i === cur ? 8 : 5,
-              borderRadius: "50%",
-              background: i === cur ? "var(--violet)" : "rgba(255,255,255,.18)",
-              border: i === cur ? "2px solid var(--violet-lt)" : "none",
-              cursor: "pointer",
-              transition: "all .28s cubic-bezier(.22,1,.36,1)",
-            }} />
+          <SideDot key={i} active={i === cur} label={s.label} onClick={() => goTo(i)} />
         ))}
       </div>
     </div>

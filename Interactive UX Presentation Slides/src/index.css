@@ -30,44 +30,31 @@ body {
   --sky:       #38bdf8;
 
   /* Text levels */
-  --t1: #f1f0ff;   /* primary   */
-  --t2: #b8b4d8;   /* secondary */
-  --t3: #6b6888;   /* muted     */
+  --t1: #f1f0ff;
+  --t2: #b8b4d8;
+  --t3: #6b6888;
 
   /* Font stacks */
   --ff-display: 'Fraunces', Georgia, serif;
   --ff-body:    'Instrument Sans', system-ui, sans-serif;
   --ff-mono:    'DM Mono', monospace;
 
-  /* ── Type scale (locked) ────────────────
-     Use these — never ad-hoc font-size.
-     Display: slide hero titles
-     H1:      large single-stat numbers
-     H2:      slide section headings
-     H3:      card headings
-     Body:    all paragraph copy
-     Small:   supporting captions, meta
-     Label:   mono badges / tags / axis
-  ─────────────────────────────────────── */
   --ts-display: clamp(3.5rem, 7.5vw, 6.5rem);
   --ts-h1:      clamp(2.8rem, 5.5vw, 4.8rem);
   --ts-h2:      clamp(2rem,   3.6vw, 3rem);
   --ts-h3:      clamp(1rem, 0.9rem + 0.3vw, 1.1rem);
   --ts-body:    clamp(0.9rem, 0.85rem + 0.2vw, 1rem);
   --ts-small:   clamp(0.78rem, 0.74rem + 0.2vw, 0.86rem);
-  --ts-label:   0.6875rem; /* 11px   — mono tags      */
+  --ts-label:   0.6875rem;
 
-  /* ── Leading (line-height) ───────────── */
   --lh-display: 0.92;
   --lh-heading: 1.08;
   --lh-body:    1.72;
   --lh-tight:   1.3;
 
-  /* ── Letter-spacing ─────────────────── */
   --ls-label:  0.13em;
   --ls-wide:   0.2em;
 
-  /* ── Spacing rhythm (4-pt grid) ──────── */
   --sp-1: 4px;
   --sp-2: 8px;
   --sp-3: 12px;
@@ -79,11 +66,10 @@ body {
   --sp-12: 48px;
   --sp-14: 56px;
 
-  /* ── Layout ─────────────────────────── */
-  --sidebar-w:   clamp(248px, 24vw, 304px);   /* all side panels */
-  --slide-px:    clamp(16px, 4.2vw, 56px);    /* horizontal edge padding */
-  --card-radius: 16px;    /* all cards */
-  --card-p:      20px;    /* all card padding */
+  --sidebar-w:   clamp(248px, 24vw, 304px);
+  --slide-px:    clamp(16px, 4.2vw, 56px);
+  --card-radius: 16px;
+  --card-p:      20px;
   --tag-radius:  5px;
 }
 
@@ -105,16 +91,28 @@ body {
 
 button { font-family: inherit; }
 
-/* Hide scrollbar by default, show on hover */
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--violet); border-radius: 2px; }
 
 /* ─────────────────────────────────────────
+   FOCUS STYLES (keyboard accessibility)
+───────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--violet-lt);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Nav buttons get a subtler ring since they have their own border */
+.nav-btn:focus-visible {
+  outline: 2px solid var(--violet-lt);
+  outline-offset: 2px;
+}
+
+/* ─────────────────────────────────────────
    TYPE UTILITY CLASSES
 ───────────────────────────────────────── */
-
-/* Display headline — title slide only */
 .t-display {
   font-family: var(--ff-display);
   font-size: var(--ts-display);
@@ -123,7 +121,6 @@ button { font-family: inherit; }
   color: var(--t1);
 }
 
-/* Section heading — one per slide */
 .t-h2 {
   font-family: var(--ff-display);
   font-size: var(--ts-h2);
@@ -132,7 +129,6 @@ button { font-family: inherit; }
   color: var(--t1);
 }
 
-/* Stat numbers */
 .t-h1 {
   font-family: var(--ff-display);
   font-size: var(--ts-h1);
@@ -141,7 +137,6 @@ button { font-family: inherit; }
   color: var(--t1);
 }
 
-/* Card / sub-section heading */
 .t-h3 {
   font-family: var(--ff-body);
   font-size: var(--ts-h3);
@@ -150,7 +145,6 @@ button { font-family: inherit; }
   color: var(--t1);
 }
 
-/* All body paragraph copy */
 .t-body {
   font-family: var(--ff-body);
   font-size: var(--ts-body);
@@ -159,7 +153,6 @@ button { font-family: inherit; }
   color: var(--t2);
 }
 
-/* Supporting captions, metadata */
 .t-small {
   font-family: var(--ff-body);
   font-size: var(--ts-small);
@@ -167,7 +160,6 @@ button { font-family: inherit; }
   color: var(--t3);
 }
 
-/* Mono labels, axis text, tags */
 .t-label {
   font-family: var(--ff-mono);
   font-size: var(--ts-label);
@@ -176,7 +168,6 @@ button { font-family: inherit; }
   color: var(--t3);
 }
 
-/* Shimmer gradient text */
 .shimmer {
   background: linear-gradient(
     90deg,
@@ -192,17 +183,16 @@ button { font-family: inherit; }
 /* ─────────────────────────────────────────
    LAYOUT UTILITIES
 ───────────────────────────────────────── */
-
-/* Standard slide left panel */
 .slide-panel {
   width: var(--sidebar-w);
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  /* vertical padding compresses on short viewports */
-  padding: clamp(16px, 4vh, 48px) var(--sp-5) clamp(16px, 4vh, 48px) var(--slide-px);
-  gap: clamp(12px, 2.2vh, 20px);
+  justify-content: flex-start;
+  /* Top padding scales with viewport but caps early — content sits in a
+     consistent upper-third zone rather than floating in dead centre on tall screens */
+  padding: clamp(20px, 7vh, 72px) var(--sp-5) clamp(16px, 4vh, 40px) var(--slide-px);
+  gap: clamp(12px, 2vh, 18px);
   position: relative;
   z-index: 10;
   height: 100%;
@@ -210,20 +200,20 @@ button { font-family: inherit; }
   overflow-y: auto;
 }
 
-/* Vertically-stacked slide wrapper */
 .slide-col {
   position: relative;
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* Match slide-panel: start from a proportionally bounded top position
+     so content doesn't float in a dead-centre void on tall screens */
+  justify-content: flex-start;
+  padding-top: clamp(20px, 7vh, 72px);
+  padding-bottom: clamp(16px, 4vh, 40px);
   overflow: hidden;
-  /* inner padding shrinks on short screens */
-  padding-block: clamp(12px, 3vh, 40px);
 }
 
-/* Standard card */
 .card {
   background: var(--surface);
   border: 1px solid var(--hairline);
@@ -237,7 +227,6 @@ button { font-family: inherit; }
   padding: var(--card-p);
 }
 
-/* Gradient border via mask */
 .grad-border {
   position: relative;
   isolation: isolate;
@@ -310,6 +299,16 @@ button { font-family: inherit; }
   50%       { opacity: .7; }
 }
 
+/* ── Directional slide transitions ───────────── */
+@keyframes slideEnterRight {
+  from { opacity: 0; transform: translateX(48px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideEnterLeft {
+  from { opacity: 0; transform: translateX(-48px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
 /* ─────────────────────────────────────────
    ANIMATION HELPERS
 ───────────────────────────────────────── */
@@ -320,7 +319,6 @@ button { font-family: inherit; }
 .a-scale { animation: scaleIn  .55s cubic-bezier(.22,1,.36,1) both; }
 .a-float { animation: floatY   5s ease-in-out infinite; }
 
-/* Staggered delays on a clean scale */
 .d1 { animation-delay: .04s; }
 .d2 { animation-delay: .10s; }
 .d3 { animation-delay: .18s; }
@@ -369,6 +367,25 @@ button { font-family: inherit; }
   display: none;
 }
 
+/* ─────────────────────────────────────────
+   KEYBOARD HINT — hidden on small screens
+───────────────────────────────────────── */
+.kbd-hint {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ─────────────────────────────────────────
+   PROGRESS BAR — slightly taller
+───────────────────────────────────────── */
+.progress-track {
+  flex: 1;
+  height: 3px;
+  background: rgba(255,255,255,.06);
+  border-radius: 2px;
+}
+
 /* Small mobile */
 @media (max-width: 480px) {
   :root {
@@ -392,6 +409,11 @@ button { font-family: inherit; }
 
   .touch-target {
     min-height: 40px;
+  }
+
+  /* Hide keyboard hint on mobile — they swipe */
+  .kbd-hint {
+    display: none;
   }
 }
 
@@ -472,6 +494,11 @@ button { font-family: inherit; }
   .cta-list {
     max-height: none !important;
     overflow: visible !important;
+  }
+
+  /* Hide keyboard hint on touch devices */
+  .kbd-hint {
+    display: none;
   }
 }
 
