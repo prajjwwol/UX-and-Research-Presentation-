@@ -784,7 +784,7 @@ function S4({ active }: { active: boolean }) {
       <div className="slide-main relative z-10 flex-1 flex flex-col justify-center overflow-hidden"
         style={{ padding: "clamp(16px,4vh,48px) var(--slide-px) clamp(16px,4vh,48px) var(--sp-6)" }}>
         {go && (
-          <div key={tab} className="a-up w-full" style={{ maxWidth: 560 }}>
+          <div key={tab} className="a-up w-full" style={{ width: "100%", maxWidth: 760, minWidth: 0 }}>
 
             <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--sp-3)",
               marginBottom: "var(--sp-5)", paddingBottom: "var(--sp-4)",
@@ -806,61 +806,78 @@ function S4({ active }: { active: boolean }) {
               </div>
             </div>
 
-            {/* Rows — editorial list, no boxes */}
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              {t.rows.map((row, i) => (
-                <div key={`${tab}-${i}`}
-                  style={{
-                    display: "flex", alignItems: "flex-start",
-                    gap: "var(--sp-4)",
-                    paddingBlock: "var(--sp-4)",
-                    borderBottom: i < t.rows.length - 1
-                      ? "1px solid var(--hairline)" : "none",
-                    animation: `fadeUp .42s cubic-bezier(.22,1,.36,1) ${.04 + i * .07}s both`,
-                  }}>
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.65fr) minmax(200px, 0.95fr)", gap: "var(--sp-4)", alignItems: "start" }}>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                {t.rows.map((row, i) => (
+                  <div key={`${tab}-${i}`}
+                    style={{
+                      display: "flex", alignItems: "flex-start",
+                      gap: "var(--sp-4)",
+                      paddingBlock: "var(--sp-4)",
+                      borderBottom: i < t.rows.length - 1
+                        ? "1px solid var(--hairline)" : "none",
+                      animation: `fadeUp .42s cubic-bezier(.22,1,.36,1) ${.04 + i * .07}s both`,
+                    }}>
 
-                  {/* Large typographic letter */}
-                  <div style={{
-                    width: 36, flexShrink: 0, paddingTop: 1,
-                    display: "flex", justifyContent: "center",
-                  }}>
-                    <span style={{
-                      fontFamily: "var(--ff-display)", fontWeight: 900,
-                      fontSize: "1.5rem", lineHeight: 1,
-                      color: t.clr,
-                    }}>{row.letter}</span>
-                  </div>
-
-                  {/* Thin vertical accent divider */}
-                  <div style={{
-                    width: 1, alignSelf: "stretch",
-                    background: t.clr + "35", flexShrink: 0,
-                    marginBlock: 3,
-                  }} />
-
-                  {/* Content */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: "flex", alignItems: "baseline",
-                      justifyContent: "space-between", gap: "var(--sp-4)",
-                      marginBottom: "var(--sp-2)" }}>
-                      <p style={{ fontFamily: "var(--ff-body)", fontWeight: 600,
-                        fontSize: "var(--ts-body)", color: "var(--t1)", lineHeight: 1.3 }}>
-                        {row.word}
-                      </p>
+                    <div style={{
+                      width: 36, flexShrink: 0, paddingTop: 1,
+                      display: "flex", justifyContent: "center",
+                    }}>
                       <span style={{
-                        fontFamily: "var(--ff-mono)", fontSize: 9,
-                        letterSpacing: "0.12em", textTransform: "uppercase",
-                        flexShrink: 0, color: t.clr,
-                      }}>{row.note}</span>
+                        fontFamily: "var(--ff-display)", fontWeight: 900,
+                        fontSize: "1.5rem", lineHeight: 1,
+                        color: t.clr,
+                      }}>{row.letter}</span>
                     </div>
-                    <p style={{ fontFamily: "var(--ff-display)", fontStyle: "italic",
-                      fontSize: "var(--ts-small)", color: "var(--t3)",
-                      lineHeight: "var(--lh-tight)" }}>
-                      {row.eg}
-                    </p>
+
+                    <div style={{
+                      width: 1, alignSelf: "stretch",
+                      background: t.clr + "35", flexShrink: 0,
+                      marginBlock: 3,
+                    }} />
+
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "baseline",
+                        justifyContent: "space-between", gap: "var(--sp-4)",
+                        marginBottom: "var(--sp-2)" }}>
+                        <p style={{ fontFamily: "var(--ff-body)", fontWeight: 600,
+                          fontSize: "var(--ts-body)", color: "var(--t1)", lineHeight: 1.3 }}>
+                          {row.word}
+                        </p>
+                        <span style={{
+                          fontFamily: "var(--ff-mono)", fontSize: 9,
+                          letterSpacing: "0.12em", textTransform: "uppercase",
+                          flexShrink: 0, color: t.clr,
+                        }}>{row.note}</span>
+                      </div>
+                      <p style={{ fontFamily: "var(--ff-display)", fontStyle: "italic",
+                        fontSize: "var(--ts-small)", color: "var(--t3)",
+                        lineHeight: "var(--lh-tight)" }}>
+                        {row.eg}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+
+              <div style={{
+                background: `${t.clr}0e`,
+                border: `1px solid ${t.clr}22`,
+                borderRadius: "var(--card-radius)",
+                padding: "var(--sp-4)",
+                minHeight: "100%",
+                alignSelf: "stretch",
+              }}>
+                <p className="t-label" style={{ color: t.clr, marginBottom: "var(--sp-3)" }}>
+                  Why this matters
+                </p>
+                <p className="t-body" style={{ color: "var(--t2)", lineHeight: "var(--lh-tight)" }}>
+                  {tab === 0 && "The best interview questions feel conversational, not interrogative. Ask one thing, then let the story unfold."}
+                  {tab === 1 && "Depth matters more than volume. The fifth why often reveals the real problem hidden behind the first answer."}
+                  {tab === 2 && "Great interviews are safe, curious, and neutral. The moment you lead, the signal begins to bend."}
+                  {tab === 3 && "A small sample can still surface most pain points. The goal is not to prove everything — it is to discover what deserves attention."}
+                </p>
+              </div>
             </div>
           </div>
         )}
@@ -1148,35 +1165,36 @@ function S7({ active }: { active: boolean }) {
         style={{ paddingInline: "var(--sp-6) var(--slide-px)",
           paddingTop: "clamp(20px, 7vh, 72px)", minHeight: 0, overflowY: "auto" }}>
         {go && (
-          <div key={sel} className="a-up" style={{ maxWidth: 480 }}>
-            <div className="flex items-start" style={{ gap: "var(--sp-5)", marginBottom: "var(--sp-6)" }}>
-              <span style={{ fontFamily: "var(--ff-display)", fontWeight: 900,
-                fontSize: "5.5rem", color: h.c + "28", lineHeight: 1, flexShrink: 0 }}>
-                {h.n}
-              </span>
-              <div>
-                <h3 style={{ fontFamily: "var(--ff-display)", fontWeight: 700,
-                  fontSize: "1.8rem", color: h.c, lineHeight: "var(--lh-heading)",
-                  marginBottom: "var(--sp-4)" }}>
-                  {h.t}
-                </h3>
+          <div key={sel} className="a-up" style={{ width: "100%", maxWidth: 700 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.45fr) minmax(220px, 0.95fr)", gap: "var(--sp-5)", alignItems: "start" }}>
+              <div className="flex items-start" style={{ gap: "var(--sp-5)" }}>
+                <span style={{ fontFamily: "var(--ff-display)", fontWeight: 900,
+                  fontSize: "5.5rem", color: h.c + "28", lineHeight: 1, flexShrink: 0 }}>
+                  {h.n}
+                </span>
+                <div>
+                  <h3 style={{ fontFamily: "var(--ff-display)", fontWeight: 700,
+                    fontSize: "1.8rem", color: h.c, lineHeight: "var(--lh-heading)",
+                    marginBottom: "var(--sp-4)" }}>
+                    {h.t}
+                  </h3>
+                  <p className="t-body" style={{ color: "var(--t2)", lineHeight: "var(--lh-body)" }}>
+                    {h.body}
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ background: `${h.c}0e`, border: `1px solid ${h.c}2e`,
+                borderRadius: "var(--card-radius)", padding: "var(--card-p)", minHeight: "100%" }}>
+                <p className="t-label" style={{ color: h.c, marginBottom: "var(--sp-3)" }}>
+                  In practice
+                </p>
                 <p className="t-body" style={{ color: "var(--t2)", lineHeight: "var(--lh-body)" }}>
-                  {h.body}
+                  {h.eg}
                 </p>
               </div>
             </div>
 
-            <div style={{ background: `${h.c}0e`, border: `1px solid ${h.c}2e`,
-              borderRadius: "var(--card-radius)", padding: "var(--card-p)" }}>
-              <p className="t-label" style={{ color: h.c, marginBottom: "var(--sp-3)" }}>
-                In practice
-              </p>
-              <p className="t-body" style={{ color: "var(--t2)", lineHeight: "var(--lh-body)" }}>
-                {h.eg}
-              </p>
-            </div>
-
-            {/* Dot pagination */}
             <div className="flex items-center" style={{ gap: "var(--sp-2)", marginTop: "clamp(12px,2vh,24px)" }}>
               {heuristics.map((_, i) => (
                 <button key={i} onClick={() => setSel(i)}
